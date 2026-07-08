@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_stock_card_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="wizard">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .stock-card-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                font-size: 10px;
+                            }
+                            .stock-card-table th {
+                                background-color: #875A7B;
+                                color: white;
+                                padding: 8px 4px;
+                                text-align: center;
+                                border: 1px solid #ddd;
+                            }
+                            .stock-card-table td {
+                                padding: 6px 4px;
+                                border: 1px solid #ddd;
+                            }
+                            .stock-card-table .text-right {
+                                text-align: right;
+                            }
+                            .stock-card-table .text-center {
+                                text-align: center;
+                            }
+                            .opening-row {
+                                background-color: #E8F5E9;
+                                font-style: italic;
+                            }
+                            .closing-row {
+                                background-color: #E3F2FD;
+                                font-weight: bold;
+                            }
+                            .total-row {
+                                background-color: #F3E5F5;
+                                font-weight: bold;
+                            }
+                            .report-header {
+                                margin-bottom: 20px;
+                            }
+                            .report-title {
+                                font-size: 18px;
+                                font-weight: bold;
+                                color: #875A7B;
+                            }
+                            .report-info {
+                                font-size: 11px;
+                                margin-top: 10px;
+                            }
+                        </style>
+
+                        <div class="report-header">
+                            <div class="report-title">Stock Card Summary Report</div>
+                            <div class="report-info">
+                                <strong>Period:</strong> <t t-esc="wizard.date_from"/> to <t t-esc="wizard.date_to"/>
+                                <br/>
+                                <strong>Location:</strong> <t t-esc="wizard.location_id.complete_name"/>
+                                <br/>
+                                <strong>Company:</strong> <t t-esc="wizard.company_id.name"/>
+                            </div>
+                        </div>
+
+                        <table class="stock-card-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Initial Balance</th>
+                                    <th>Total In</th>
+                                    <th>Total Out</th>
+                                    <th>Closing Balance</th>
+                                    <th>Unit Cost</th>
+                                    <th>Balance Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_initial" t-value="0"/>
+                                <t t-set="total_in" t-value="0"/>
+                                <t t-set="total_out" t-value="0"/>
+                                <t t-set="total_balance" t-value="0"/>
+                                <t t-set="total_balance_value" t-value="0"/>
+
+                                <t t-set="closing_lines" t-value="wizard.line_ids.filtered(lambda l: l.line_type == 'closing')"/>
+                                <t t-set="transaction_lines" t-value="wizard.line_ids.filtered(lambda l: l.line_type == 'transaction')"/>
+
+                                <t t-foreach="closing_lines" t-as="line">
+                                    <t t-set="product_transactions" t-value="transaction_lines.filtered(lambda l: l.product_id == line.product_id)"/>
+                                    <t t-set="line_total_in" t-value="sum(product_transactions.mapped('qty_in'))"/>
+                                    <t t-set="line_total_out" t-value="sum(product_transactions.mapped('qty_out'))"/>
+                                    <t t-set="total_initial" t-value="total_initial + line.initial_balance"/>
+                                    <t t-set="total_in" t-value="total_in + line_total_in"/>
+                                    <t t-set="total_out" t-value="total_out + line_total_out"/>
+                                    <t t-set="total_balance" t-value="total_balance + line.balance"/>
+                                    <t t-set="total_balance_value" t-value="total_balance_value + line.balance_value"/>
+                                    <tr>
+                                        <td><t t-esc="line.product_id.display_name"/></td>
+                                        <td><t t-esc="line.categ_id.complete_name or ''"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.initial_balance"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line_total_in"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line_total_out"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.balance"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.product_id.standard_price"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.balance_value"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="2" class="text-right"><strong>TOTALS:</strong></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % total_initial"/></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % total_in"/></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % total_out"/></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % total_balance"/></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % total_balance_value"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,45 @@
+/* Stock Card Report Styles */
+
+.o_list_view .o_data_row.text-info td {
+    background-color: #E8F5E9 !important;
+    font-style: italic;
+}
+
+.o_list_view .o_data_row.text-success td {
+    background-color: #E3F2FD !important;
+}
+
+/* Opening Balance Row */
+.o_list_view .o_data_row[data-line_type="opening"] td {
+    background-color: #E8F5E9;
+    font-style: italic;
+}
+
+/* Closing Balance Row */
+.o_list_view .o_data_row[data-line_type="closing"] td {
+    background-color: #E3F2FD;
+    font-weight: bold;
+}
+
+/* Group Header Row */
+.o_list_view .o_data_row[data-line_type="group_header"] td {
+    background-color: #F3E5F5;
+    font-weight: bold;
+}
+
+/* Stock Card Wizard Form Styling */
+.o_form_view .stock_card_wizard_form .oe_title h1 {
+    color: #875A7B;
+}
+
+.o_form_view .stock_card_wizard_form .o_group {
+    margin-bottom: 15px;
+}
+
+.o_form_view .stock_card_wizard_form .o_group .o_group_header {
+    color: #875A7B;
+    font-weight: bold;
+    border-bottom: 2px solid #875A7B;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
