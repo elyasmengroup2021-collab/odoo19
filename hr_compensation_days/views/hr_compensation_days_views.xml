@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_compensation_days_tree" model="ir.ui.view">
+        <field name="name">hr.compensation.days.tree</field>
+        <field name="model">hr.compensation.days</field>
+        <field name="arch" type="xml">
+            <tree string="Shift Allowance Days" decoration-success="operation_type == 'add' and state == 'confirmed'" decoration-danger="operation_type == 'spend' and state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="company_id"/>
+                <field name="date"/>
+                <field name="operation_type"/>
+                <field name="mission_type_id" optional="hide"/>
+                <field name="allowance_unit"/>
+                <field name="display_day_count" sum="Total Days" invisible="allowance_unit != 'day'"/>
+                <field name="display_hour_count" sum="Total Hours" invisible="allowance_unit != 'hour'"/>
+                <field name="display_amount" sum="Total Amount" invisible="allowance_unit != 'amount'"/>
+                <field name="balance_effect" sum="Days Balance Effect"/>
+                <field name="hour_balance_effect" sum="Hours Balance Effect"/>
+                <field name="amount_balance_effect" sum="Amount Balance Effect"/>
+                <field name="batch_id" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-danger="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_form" model="ir.ui.view">
+        <field name="name">hr.compensation.days.form</field>
+        <field name="model">hr.compensation.days</field>
+        <field name="arch" type="xml">
+            <form string="Shift Allowance Day">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" invisible="state != 'cancelled'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'" domain="[('company_id', '=', company_id)]"/>
+                            <field name="company_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="operation_type" widget="radio" readonly="state != 'draft'"/>
+                            <field name="mission_type_id" readonly="state != 'draft'" invisible="operation_type != 'mission'" domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"/>
+                            <field name="allowance_unit" widget="radio" readonly="state != 'draft'"/>
+                            <field name="day_count" readonly="state != 'draft'" invisible="allowance_unit != 'day'"/>
+                            <field name="hour_count" readonly="state != 'draft'" invisible="allowance_unit != 'hour'"/>
+                            <field name="amount" readonly="state != 'draft'" invisible="allowance_unit != 'amount'"/>
+                        </group>
+                        <group>
+                            <field name="balance_before" readonly="1"/>
+                            <field name="balance_effect" readonly="1"/>
+                            <field name="balance_after" readonly="1"/>
+                            <field name="hour_balance_before" readonly="1"/>
+                            <field name="hour_balance_effect" readonly="1"/>
+                            <field name="hour_balance_after" readonly="1"/>
+                            <field name="amount_balance_before" readonly="1"/>
+                            <field name="amount_balance_effect" readonly="1"/>
+                            <field name="amount_balance_after" readonly="1"/>
+                            <field name="batch_id" readonly="1" invisible="not batch_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notes..."/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_search" model="ir.ui.view">
+        <field name="name">hr.compensation.days.search</field>
+        <field name="model">hr.compensation.days</field>
+        <field name="arch" type="xml">
+            <search string="Search Shift Allowance Days">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="company_id"/>
+                <field name="date"/>
+                <field name="mission_type_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter name="add" string="Additions" domain="[('operation_type', '=', 'add')]"/>
+                <filter name="spend" string="Spending" domain="[('operation_type', '=', 'spend')]"/>
+                <filter name="mission" string="Missions" domain="[('operation_type', '=', 'mission')]"/>
+                <filter name="days" string="Days" domain="[('allowance_unit', '=', 'day')]"/>
+                <filter name="hours" string="Hours" domain="[('allowance_unit', '=', 'hour')]"/>
+                <filter name="amount" string="Amount" domain="[('allowance_unit', '=', 'amount')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                <filter name="group_operation_type" string="Operation Type" context="{'group_by': 'operation_type'}"/>
+                <filter name="group_allowance_unit" string="Unit" context="{'group_by': 'allowance_unit'}"/>
+                <filter name="group_batch" string="Daily Batch" context="{'group_by': 'batch_id'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_compensation_days" model="ir.actions.act_window">
+        <field name="name">Shift Allowance Days</field>
+        <field name="res_model">hr.compensation.days</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hr_compensation_days_search"/>
+        <field name="context">{'search_default_confirmed': 1}</field>
+    </record>
+
+
+    <record id="view_hr_compensation_days_close_tree" model="ir.ui.view">
+        <field name="name">hr.compensation.days.close.tree</field>
+        <field name="model">hr.compensation.days.close</field>
+        <field name="arch" type="xml">
+            <tree string="Monthly Closing Records" create="0" edit="0" delete="1">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="employee_id" optional="show"/>
+                <field name="department_id" optional="show"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="action"/>
+                <field name="payment_date" optional="show"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_close_form" model="ir.ui.view">
+        <field name="name">hr.compensation.days.close.form</field>
+        <field name="model">hr.compensation.days.close</field>
+        <field name="arch" type="xml">
+            <form string="Monthly Closing Record" create="0" delete="1">
+                <header>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" class="btn-secondary" invisible="state != 'done'"/>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_print_pdf" type="object" string="Print PDF" class="btn-secondary" invisible="state != 'done'"/>
+                    <button name="action_print_xlsx" type="object" string="Print Excel" class="btn-secondary" invisible="state != 'done'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" readonly="state == 'done'"/>
+                            <field name="employee_id" readonly="state == 'done'"/>
+                            <field name="department_id" readonly="state == 'done'"/>
+                            <field name="date_from" readonly="state == 'done'"/>
+                            <field name="date_to" readonly="state == 'done'"/>
+                        </group>
+                        <group>
+                            <field name="action" readonly="state == 'done'"/>
+                            <field name="payment_date" readonly="state == 'done'"/>
+                            <field name="notes" readonly="state == 'done'"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" readonly="state == 'done'">
+                        <tree editable="bottom" create="0" delete="1">
+                            <field name="employee_id" readonly="1"/>
+                            <field name="department_id" optional="show"/>
+                            <field name="configured_allowance_unit" optional="show"/>
+                            <field name="allowance_coefficient" optional="show"/>
+                            <field name="hours_allowance_coefficient" optional="show"/>
+                            <field name="balance_days" sum="Total Days"/>
+                            <field name="balance_hours" sum="Total Hours"/>
+                            <field name="balance_amount" sum="Total Mission Amount"/>
+                            <field name="rate" optional="show"/>
+                            <field name="hourly_rate" optional="show"/>
+                            <field name="days_amount" sum="Days Amount"/>
+                            <field name="hours_amount" sum="Hours Amount"/>
+                            <field name="mission_amount" sum="Mission Amount"/>
+                            <field name="amount" sum="Total Amount"/>
+                        </tree>
+                    </field>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_close_search" model="ir.ui.view">
+        <field name="name">hr.compensation.days.close.search</field>
+        <field name="model">hr.compensation.days.close</field>
+        <field name="arch" type="xml">
+            <search string="Search Monthly Closing Records">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <filter name="pay" string="Paid Closings" domain="[('action', '=', 'pay')]"/>
+                <filter name="carry" string="Carry Forward" domain="[('action', '=', 'carry_forward')]"/>
+                <separator/>
+                <filter name="group_company" string="Branch" context="{'group_by': 'company_id'}"/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                <filter name="group_month" string="Month" context="{'group_by': 'date_to:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_compensation_days_close" model="ir.actions.act_window">
+        <field name="name">Monthly Closing Records</field>
+        <field name="res_model">hr.compensation.days.close</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hr_compensation_days_close_search"/>
+        <field name="context">{'search_default_group_month': 1}</field>
+    </record>
+
+</odoo>

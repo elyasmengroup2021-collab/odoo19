@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_shift_allowance_close_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>إغلاق رصيد بدل الورديات</h2>
+                        <p><strong>المرجع:</strong> <span t-field="doc.name"/></p>
+                        <p><strong>تاريخ الإغلاق:</strong> <span t-field="doc.date_to"/></p>
+                        <p><strong>القسم:</strong> <span t-field="doc.department_id"/></p>
+                        <p><strong>نوع الإغلاق:</strong> <span t-field="doc.close_type"/></p>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>الموظف</th>
+                                    <th>القسم</th>
+                                    <th class="text-end">الرصيد المغلق</th>
+                                    <th class="text-end">الرصيد قبل</th>
+                                    <th class="text-end">الرصيد بعد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td><span t-field="line.employee_id"/></td>
+                                    <td><span t-field="line.department_id"/></td>
+                                    <td class="text-end"><span t-field="line.quantity"/></td>
+                                    <td class="text-end"><span t-field="line.balance_before"/></td>
+                                    <td class="text-end"><span t-field="line.balance_after"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2">الإجمالي</th>
+                                    <th class="text-end"><span t-field="doc.total_quantity"/></th>
+                                    <th colspan="2"/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <p t-if="doc.note"><strong>ملاحظات:</strong> <span t-field="doc.note"/></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_shift_allowance_close" model="ir.actions.report">
+        <field name="name">Shift Allowance Closing PDF</field>
+        <field name="model">hr.shift.allowance.close</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_compensation_days.report_shift_allowance_close_document</field>
+        <field name="report_file">hr_compensation_days.report_shift_allowance_close_document</field>
+        <field name="print_report_name">'Shift Allowance Closing - %s' % object.name</field>
+    </record>
+</odoo>

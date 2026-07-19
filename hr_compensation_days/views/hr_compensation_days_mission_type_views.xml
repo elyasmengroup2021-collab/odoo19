@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_compensation_days_mission_type_tree" model="ir.ui.view">
+        <field name="name">hr.compensation.days.mission.type.tree</field>
+        <field name="model">hr.compensation.days.mission.type</field>
+        <field name="arch" type="xml">
+            <tree string="Mission Types">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="allowance_unit"/>
+                <field name="day_count" invisible="allowance_unit != 'day'"/>
+                <field name="hour_count" invisible="allowance_unit != 'hour'"/>
+                <field name="amount" invisible="allowance_unit != 'amount'"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_mission_type_form" model="ir.ui.view">
+        <field name="name">hr.compensation.days.mission.type.form</field>
+        <field name="model">hr.compensation.days.mission.type</field>
+        <field name="arch" type="xml">
+            <form string="Mission Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id"/>
+                        <field name="allowance_unit" widget="radio"/>
+                        <field name="day_count" invisible="allowance_unit != 'day'"/>
+                        <field name="hour_count" invisible="allowance_unit != 'hour'"/>
+                        <field name="amount" invisible="allowance_unit != 'amount'"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_compensation_days_mission_type" model="ir.actions.act_window">
+        <field name="name">Mission Types</field>
+        <field name="res_model">hr.compensation.days.mission.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

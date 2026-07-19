@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="seq_hr_shift_allowance_line" model="ir.sequence">
+        <field name="name">HR Shift Allowance</field>
+        <field name="code">hr.shift.allowance.line</field>
+        <field name="prefix">SHIFT/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_hr_shift_allowance_close" model="ir.sequence">
+        <field name="name">HR Shift Allowance Closing</field>
+        <field name="code">hr.shift.allowance.close</field>
+        <field name="prefix">SHC/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

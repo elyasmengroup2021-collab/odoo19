@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_shift_allowance_wizard_form" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.wizard.form</field>
+        <field name="model">hr.shift.allowance.wizard</field>
+        <field name="arch" type="xml">
+            <form string="بدل وردية">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="department_id"/>
+                            <field name="date"/>
+                            <field name="movement_type" widget="radio"/>
+                            <field name="allowance_unit" readonly="1"/>
+                            <field name="coefficient" readonly="1"/>
+                            <field name="input_quantity"/>
+                        </group>
+                        <group>
+                            <field name="calculated_quantity" readonly="1"/>
+                            <field name="current_balance" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="ملاحظات" colspan="4"><field name="note" nolabel="1" colspan="4" placeholder="اكتب أي ملاحظات هنا..."/></group>
+                    <group string="المرفقات" colspan="4"><field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="4"/></group>
+                </sheet>
+                <footer>
+                    <button name="action_apply" string="حفظ" type="object" class="btn-primary"/>
+                    <button string="إغلاق" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_shift_allowance_wizard" model="ir.actions.act_window">
+        <field name="name">إضافة / صرف بدل وردية</field>
+        <field name="res_model">hr.shift.allowance.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_hr_shift_allowance_close_wizard_form" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.close.wizard.form</field>
+        <field name="model">hr.shift.allowance.close.wizard</field>
+        <field name="arch" type="xml">
+            <form string="إغلاق رصيد بدل الورديات الشهري">
+                <sheet>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="department_id"/>
+                        <field name="date_to"/>
+                        <field name="employee_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="close_type" widget="radio"/>
+                    </group>
+                    <group string="ملاحظات" colspan="4"><field name="note" nolabel="1" colspan="4" placeholder="اكتب ملاحظات الإغلاق هنا..."/></group>
+                </sheet>
+                <footer>
+                    <button name="action_close_month" string="تنفيذ الإغلاق" type="object" class="btn-primary"/>
+                    <button string="إلغاء" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_shift_allowance_close_wizard" model="ir.actions.act_window">
+        <field name="name">إغلاق رصيد الورديات الشهري</field>
+        <field name="res_model">hr.shift.allowance.close.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

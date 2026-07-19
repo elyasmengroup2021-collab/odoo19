@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="module_category_hr_compensation" model="ir.module.category">
+        <field name="name">HR Compensation</field>
+        <field name="description">Compensation days access rights</field>
+        <field name="sequence">25</field>
+    </record>
+    <record id="group_compensation_user" model="res.groups">
+        <field name="name">Compensation User</field>
+        <field name="category_id" ref="hr_compensation_days.module_category_hr_compensation"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="group_compensation_manager" model="res.groups">
+        <field name="name">Compensation Manager</field>
+        <field name="category_id" ref="hr_compensation_days.module_category_hr_compensation"/>
+        <field name="implied_ids" eval="[(4, ref('hr_compensation_days.group_compensation_user')), (4, ref('hr.group_hr_manager'))]"/>
+    </record>
+
+    <!-- Backward-compatible group XML IDs used by the daily balance feature files. -->
+    <record id="group_hr_compensation_days_user" model="res.groups">
+        <field name="name">Shift Allowance User</field>
+        <field name="category_id" ref="hr_compensation_days.module_category_hr_compensation"/>
+        <field name="implied_ids" eval="[(4, ref('hr_compensation_days.group_compensation_user'))]"/>
+    </record>
+    <record id="group_hr_compensation_days_manager" model="res.groups">
+        <field name="name">Shift Allowance Manager</field>
+        <field name="category_id" ref="hr_compensation_days.module_category_hr_compensation"/>
+        <field name="implied_ids" eval="[(4, ref('hr_compensation_days.group_hr_compensation_days_user')), (4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+    </record>
+</odoo>

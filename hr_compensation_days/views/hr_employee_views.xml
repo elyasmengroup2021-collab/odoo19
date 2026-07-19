@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_compensation_days" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.compensation.days</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_hr_compensation_days)d"
+                        type="action"
+                        class="oe_stat_button"
+                        groups="hr_compensation_days.group_compensation_user"
+                        icon="fa-calendar-plus-o"
+                        context="{'search_default_employee_id': id, 'default_employee_id': id}">
+                    <field name="compensation_days_balance" widget="statinfo" string="Shift Days"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_compensation_days_balance_tree" model="ir.ui.view">
+        <field name="name">hr.employee.compensation.days.balance.tree</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <tree string="Employee Shift Allowance Balances" create="0">
+                <field name="name"/>
+                <field name="department_id" optional="show"/>
+                <field name="job_id" optional="show"/>
+                <field name="contract_id" optional="show"/>
+                <field name="compensation_days_balance" sum="Total Days Balance"/>
+                <field name="compensation_hours_balance" sum="Total Hours Balance"/>
+                <field name="compensation_amount_balance" sum="Total Amount Balance"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_compensation_days_balance_search" model="ir.ui.view">
+        <field name="name">hr.employee.compensation.days.balance.search</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <search string="Search Employee Shift Balances">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+                <separator/>
+                <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                <filter name="group_job" string="Job Position" context="{'group_by': 'job_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_compensation_days_employee_balances" model="ir.actions.act_window">
+        <field name="name">Employee Shift Allowance Balances</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_hr_employee_compensation_days_balance_tree"/>
+        <field name="search_view_id" ref="view_hr_employee_compensation_days_balance_search"/>
+    </record>
+
+</odoo>

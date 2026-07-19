@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rule_shift_allowance_line_user_own" model="ir.rule">
+        <field name="name">Shift allowance lines: own employee records</field>
+        <field name="model_id" ref="model_hr_shift_allowance_line"/>
+        <field name="groups" eval="[(4, ref('hr_compensation_days.group_compensation_user'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    </record>
+    <record id="rule_shift_allowance_line_manager_company" model="ir.rule">
+        <field name="name">Shift allowance lines: manager multi-company</field>
+        <field name="model_id" ref="model_hr_shift_allowance_line"/>
+        <field name="groups" eval="[(4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_shift_allowance_close_manager_company" model="ir.rule">
+        <field name="name">Shift allowance closings: manager multi-company</field>
+        <field name="model_id" ref="model_hr_shift_allowance_close"/>
+        <field name="groups" eval="[(4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_shift_allowance_config_manager_company" model="ir.rule">
+        <field name="name">Shift allowance config: manager multi-company</field>
+        <field name="model_id" ref="model_hr_shift_allowance_config"/>
+        <field name="groups" eval="[(4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

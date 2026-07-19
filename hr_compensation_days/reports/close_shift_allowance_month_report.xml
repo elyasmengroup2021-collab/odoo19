@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_close_shift_allowance_month" model="ir.actions.report">
+        <field name="name">Close Shift Allowance Month</field>
+        <field name="model">hr.compensation.days.close</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_compensation_days.report_close_shift_allowance_month</field>
+        <field name="report_file">hr_compensation_days.report_close_shift_allowance_month</field>
+        <field name="print_report_name">'Close Shift Allowance Month - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_hr_compensation_days_close"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+    </record>
+
+    <record id="action_report_close_shift_allowance_month_xlsx" model="ir.actions.report">
+        <field name="name">Close Shift Allowance Month Excel</field>
+        <field name="model">hr.compensation.days.close</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_compensation_days.close_shift_allowance_month_xlsx</field>
+        <field name="report_file">Close_Shift_Allowance_Month</field>
+        <field name="print_report_name">'Close Shift Allowance Month - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_hr_compensation_days_close"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('hr_compensation_days.group_compensation_manager'))]"/>
+    </record>
+
+    <template id="report_close_shift_allowance_month">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">Close Shift Allowance Month</h2>
+
+                        <div class="row mt16 mb16">
+                            <div class="col-6">
+                                <strong>Reference:</strong>
+                                <span t-field="doc.name"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Closing Type:</strong>
+                                <span t-esc="dict(doc._fields['action'].selection).get(doc.action)"/>
+                            </div>
+                        </div>
+                        <div class="row mb16">
+                            <div class="col-4">
+                                <strong>Branch:</strong>
+                                <span t-field="doc.company_id"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Employee:</strong>
+                                <span t-field="doc.employee_id"/>
+                            </div>
+                        </div>
+                        <div class="row mb16">
+                            <div class="col-4">
+                                <strong>Date From:</strong>
+                                <span t-field="doc.date_from"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Date To:</strong>
+                                <span t-field="doc.date_to"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Payment Date:</strong>
+                                <span t-field="doc.payment_date"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt16">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th class="text-end">Coefficient</th>
+                                    <th class="text-end">Balance Days</th>
+                                    <th class="text-end">Balance Hours</th>
+                                    <th class="text-end">Balance Amount</th>
+                                    <th class="text-end">Daily Wage</th>
+                                    <th class="text-end">Hourly Wage</th>
+                                    <th class="text-end">Days Amount</th>
+                                    <th class="text-end">Hours Amount</th>
+                                    <th class="text-end">Mission Amount</th>
+                                    <th class="text-end">Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td><span t-field="line.employee_id"/></td>
+                                    <td><span t-field="line.department_id"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.allowance_coefficient"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.balance_days"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.balance_hours"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.balance_amount"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.rate"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.hourly_rate"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.days_amount"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.hours_amount"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.mission_amount"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % line.amount"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th/>
+                                    <th/>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('balance_days'))"/></th>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('balance_hours'))"/></th>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('balance_amount'))"/></th>
+                                    <th/>
+                                    <th/>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('days_amount'))"/></th>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('hours_amount'))"/></th>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('mission_amount'))"/></th>
+                                    <th class="text-end"><span t-esc="'%.2f' % sum(doc.line_ids.mapped('amount'))"/></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div t-if="doc.notes" class="mt16">
+                            <strong>Notes:</strong>
+                            <p t-field="doc.notes"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

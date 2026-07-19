@@ -1,0 +1,68 @@
+# Translation of HR Shift Allowance Balance to Arabic.
+msgid ""
+msgstr ""
+"Project-Id-Version: hr_compensation_days 17.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: hr_compensation_days
+msgid "Shift Allowance"
+msgstr "بدل وردية"
+
+#. module: hr_compensation_days
+msgid "Add / Spend Shift Allowance"
+msgstr "إضافة / صرف بدل وردية"
+
+#. module: hr_compensation_days
+msgid "Employee Shift Allowance Balances"
+msgstr "أرصدة بدل الورديات للموظفين"
+
+#. module: hr_compensation_days
+msgid "Close Shift Allowance Month"
+msgstr "إغلاق رصيد الورديات الشهري"
+
+#. module: hr_compensation_days
+msgid "Shift Allowance Closings"
+msgstr "إغلاقات بدل الورديات"
+
+#. module: hr_compensation_days
+msgid "Shift Allowance Coefficient Settings"
+msgstr "إعدادات معامل بدل الوردية"
+
+#. module: hr_compensation_days
+msgid "Daily Shift Allowance Days"
+msgstr "بدل الورديات اليومي"
+
+#. module: hr_compensation_days
+msgid "Shift Allowance Entries"
+msgstr "حركات بدل الورديات"
+
+#. module: hr_compensation_days
+msgid "Mission Types"
+msgstr "أنواع المأموريات"
+
+#. module: hr_compensation_days
+msgid "Monthly Closing Records"
+msgstr "سجلات الإغلاق الشهرية"
+
+#. module: hr_compensation_days
+msgid "Branch"
+msgstr "الفرع"
+
+#. module: hr_compensation_days
+msgid "Department"
+msgstr "القسم"
+
+#. module: hr_compensation_days
+msgid "Coefficient"
+msgstr "المعامل"
+
+#. module: hr_compensation_days
+msgid "Configured Unit"
+msgstr "وحدة الإعداد"
+
+#. module: hr_compensation_days
+msgid "Amount must be zero or greater."
+msgstr "يجب أن تكون القيمة صفرًا أو أكبر."

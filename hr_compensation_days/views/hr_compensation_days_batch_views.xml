@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_compensation_days_batch_tree" model="ir.ui.view">
+        <field name="name">hr.compensation.days.batch.tree</field>
+        <field name="model">hr.compensation.days.batch</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Shift Allowance Days" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="company_id"/>
+                <field name="operation_type"/>
+                <field name="mission_type_id"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-danger="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_batch_form" model="ir.ui.view">
+        <field name="name">hr.compensation.days.batch.form</field>
+        <field name="model">hr.compensation.days.batch</field>
+        <field name="arch" type="xml">
+            <form string="Daily Shift Allowance Days">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'confirmed'"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" invisible="state != 'cancelled' or entry_ids"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <field name="date" readonly="state != 'draft'"/>
+                        <field name="company_id" readonly="state != 'draft'"/>
+                        <field name="operation_type" widget="radio" readonly="state != 'draft'"/>
+                        <field name="mission_type_id" readonly="state != 'draft'" invisible="operation_type != 'mission'" domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"/>
+                    </group>
+                    <notebook>
+                        <page string="Shift Allowance Days" name="shift_allowance_days">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="employee_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="mission_type_id" invisible="parent.operation_type != 'mission'" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+                                    <field name="allowance_unit"/>
+                                    <field name="day_count" invisible="allowance_unit != 'day'"/>
+                                    <field name="hour_count" invisible="allowance_unit != 'hour'"/>
+                                    <field name="amount" invisible="allowance_unit != 'amount'"/>
+                                    <field name="current_days_balance" readonly="1"/>
+                                    <field name="current_hours_balance" readonly="1"/>
+                                    <field name="current_amount_balance" readonly="1"/>
+                                    <field name="resulting_days_balance" readonly="1"/>
+                                    <field name="resulting_hours_balance" readonly="1"/>
+                                    <field name="resulting_amount_balance" readonly="1"/>
+                                    <field name="generated_entry_id" readonly="1" optional="hide"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Generated Entries" name="generated_entries" invisible="not entry_ids">
+                            <field name="entry_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="employee_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="mission_type_id" invisible="parent.operation_type != 'mission'" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+                                    <field name="date"/>
+                                    <field name="operation_type"/>
+                                    <field name="allowance_unit"/>
+                                    <field name="display_day_count" invisible="allowance_unit != 'day'"/>
+                                    <field name="display_hour_count" invisible="allowance_unit != 'hour'"/>
+                                    <field name="display_amount" invisible="allowance_unit != 'amount'"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes..." readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_compensation_days_batch_search" model="ir.ui.view">
+        <field name="name">hr.compensation.days.batch.search</field>
+        <field name="model">hr.compensation.days.batch</field>
+        <field name="arch" type="xml">
+            <search string="Search Daily Shift Allowance Days">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="company_id"/>
+                <field name="operation_type"/>
+                <field name="mission_type_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter name="add" string="Additions" domain="[('operation_type', '=', 'add')]"/>
+                <filter name="spend" string="Spending" domain="[('operation_type', '=', 'spend')]"/>
+                <filter name="mission" string="Missions" domain="[('operation_type', '=', 'mission')]"/>
+                <separator/>
+                <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'date:month'}"/>
+                <filter name="group_operation_type" string="Operation Type" context="{'group_by': 'operation_type'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_compensation_days_batch" model="ir.actions.act_window">
+        <field name="name">Daily Shift Allowance Days</field>
+        <field name="res_model">hr.compensation.days.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hr_compensation_days_batch_search"/>
+        <field name="context">{'search_default_confirmed': 1}</field>
+    </record>
+</odoo>

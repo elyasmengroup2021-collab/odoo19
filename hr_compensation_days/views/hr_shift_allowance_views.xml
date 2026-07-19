@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_shift_allowance_config_tree" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.config.tree</field>
+        <field name="model">hr.shift.allowance.config</field>
+        <field name="arch" type="xml">
+            <tree string="Shift Allowance Configuration">
+                <field name="department_id"/>
+                <field name="allowance_unit"/>
+                <field name="coefficient"/>
+                <field name="company_id"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_shift_allowance_config_form" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.config.form</field>
+        <field name="model">hr.shift.allowance.config</field>
+        <field name="arch" type="xml">
+            <form string="Shift Allowance Configuration">
+                <sheet>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="department_id"/>
+                        <field name="allowance_unit"/>
+                        <field name="coefficient"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_shift_allowance_config" model="ir.actions.act_window">
+        <field name="name">Shift Allowance Coefficient Settings</field>
+        <field name="res_model">hr.shift.allowance.config</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_hr_shift_allowance_close_tree" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.close.tree</field>
+        <field name="model">hr.shift.allowance.close</field>
+        <field name="arch" type="xml">
+            <tree string="Shift Allowance Closings">
+                <field name="name"/>
+                <field name="date_to"/>
+                <field name="department_id"/>
+                <field name="close_type"/>
+                <field name="total_quantity" sum="Total"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_shift_allowance_close_form" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.close.form</field>
+        <field name="model">hr.shift.allowance.close</field>
+        <field name="arch" type="xml">
+            <form string="إغلاق رصيد بدل الورديات">
+                <header>
+                    <button name="action_print_pdf" string="PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Excel" type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="company_id" readonly="1"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                            <field name="close_type" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="total_quantity" readonly="1"/>
+                            <field name="export_filename" invisible="1"/>
+                            <field name="export_file" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="ملاحظات">
+                        <field name="note" nolabel="1" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="حركات الإغلاق">
+                            <field name="line_ids" readonly="1">
+                                <tree>
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <field name="quantity"/>
+                                    <field name="balance_before"/>
+                                    <field name="balance_after"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_shift_allowance_close" model="ir.actions.act_window">
+        <field name="name">إغلاقات بدل الورديات</field>
+        <field name="res_model">hr.shift.allowance.close</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_hr_shift_allowance_line_tree" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.line.tree</field>
+        <field name="model">hr.shift.allowance.line</field>
+        <field name="arch" type="xml">
+            <tree string="Shift Allowances" decoration-success="movement_type == 'add'" decoration-danger="movement_type in ('deduct', 'close_paid')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="company_id" invisible="1"/>
+                <field name="department_id"/>
+                <field name="date"/>
+                <field name="movement_type"/>
+                <field name="allowance_unit"/>
+                <field name="input_quantity"/>
+                <field name="coefficient"/>
+                <field name="quantity" sum="Total"/>
+                <field name="balance_before"/>
+                <field name="balance_after"/>
+                <field name="close_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_shift_allowance_line_form" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.line.form</field>
+        <field name="model">hr.shift.allowance.line</field>
+        <field name="arch" type="xml">
+            <form string="بدل وردية">
+                <sheet>
+                    <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="department_id"/>
+                            <field name="date" readonly="1"/>
+                            <field name="movement_type" readonly="1"/>
+                            <field name="close_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="allowance_unit" readonly="1"/>
+                            <field name="input_quantity" readonly="1"/>
+                            <field name="coefficient" readonly="1"/>
+                            <field name="quantity" readonly="1"/>
+                            <field name="balance_before"/>
+                            <field name="balance_after"/>
+                        </group>
+                    </group>
+                    <group string="ملاحظات"><field name="note" nolabel="1"/></group>
+                    <group string="المرفقات"><field name="attachment_ids" widget="many2many_binary" nolabel="1"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_shift_allowance_line_search" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.line.search</field>
+        <field name="model">hr.shift.allowance.line</field>
+        <field name="arch" type="xml">
+            <search string="Shift Allowances">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="date"/>
+                <filter string="إضافات" name="filter_add" domain="[('movement_type', '=', 'add')]"/>
+                <filter string="صرف" name="filter_deduct" domain="[('movement_type', 'in', ['deduct', 'close_paid'])]"/>
+                <filter string="إغلاقات شهرية" name="filter_monthly_close" domain="[('is_monthly_close', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Month" name="group_month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hr_shift_allowance_line_pivot" model="ir.ui.view">
+        <field name="name">hr.shift.allowance.line.pivot</field>
+        <field name="model">hr.shift.allowance.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Shift Allowance Balance">
+                <field name="employee_id" type="row"/>
+                <field name="movement_type" type="col"/>
+                <field name="quantity" type="measure"/>
+                <field name="balance_after" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_hr_shift_allowance_line" model="ir.actions.act_window">
+        <field name="name">رصيد بدل الورديات</field>
+        <field name="res_model">hr.shift.allowance.line</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="search_view_id" ref="view_hr_shift_allowance_line_search"/>
+    </record>
+</odoo>

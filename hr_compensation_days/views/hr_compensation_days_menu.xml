@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_hr_compensation_days_root"
+              name="Shift Allowance"
+              parent="hr.menu_hr_root"
+              sequence="45"
+              groups="base.group_no_one"/>
+
+    <delete model="ir.ui.menu" search="[('name', '=', 'Monthly Closings'), ('parent_id', '=', ref('menu_hr_compensation_days_root'))]"/>
+
+    <menuitem id="menu_hr_compensation_days_batch"
+              name="Daily Shift Allowance Days"
+              parent="menu_hr_compensation_root"
+              action="action_hr_compensation_days_batch"
+              sequence="10"
+              groups="hr_compensation_days.group_compensation_user"/>
+
+    <menuitem id="menu_hr_compensation_days"
+              name="Shift Allowance Entries"
+              parent="menu_hr_compensation_root"
+              action="action_hr_compensation_days"
+              sequence="20"
+              groups="hr_compensation_days.group_compensation_user"/>
+
+    <menuitem id="menu_hr_compensation_days_mission_type"
+              name="Mission Types"
+              parent="menu_hr_compensation_root"
+              action="action_hr_compensation_days_mission_type"
+              sequence="30"
+              groups="hr_compensation_days.group_compensation_manager"/>
+
+    <menuitem id="menu_hr_compensation_days_close_wizard"
+              name="Close Month"
+              parent="menu_hr_compensation_root"
+              action="action_hr_compensation_days_close_wizard"
+              sequence="60"
+              groups="hr_compensation_days.group_compensation_manager"/>
+
+    <menuitem id="menu_hr_compensation_days_close_history"
+              name="Monthly Closing Records"
+              parent="menu_hr_compensation_root"
+              action="action_hr_compensation_days_close"
+              sequence="70"
+              groups="hr_compensation_days.group_compensation_manager"/>
+
+
+</odoo>
