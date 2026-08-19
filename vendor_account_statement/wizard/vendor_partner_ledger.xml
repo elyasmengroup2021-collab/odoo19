@@ -1,0 +1,528 @@
+<odoo>
+
+    <template id="custom_header_vendor">
+        <div class="header" style="font-size:14px;font-weight:bold;background-color:#eaf4fb;border-bottom:3px solid #1a4f72;padding:8px 10px 4px;margin-bottom:8px;">
+            <table class="text-center" width="100%" style="font-family:Arial;">
+                <tr>
+                    <td width="100%">
+                        <img t-if="header_img_data"
+                             t-att-src="'data:image/png;base64,%s' % header_img_data.decode('utf-8')"
+                             style="display:block;margin-top:3px;height:100px;width:100%;"/>
+                    </td>
+                </tr>
+            </table>
+            <t t-set="current_time" t-value="datetime.datetime.now() + datetime.timedelta(hours=2)"/>
+            <t t-set="month" t-value="current_time.month"/>
+            <t t-if="month &gt; 4 and month &lt; 11">
+                <t t-set="current_time" t-value="datetime.datetime.now() + datetime.timedelta(hours=3)"/>
+            </t>
+            <table class="table table-borderless text-center" width="100%"
+                   style="border:none;font-family:KacstOne;background-color:#dbeaf5;padding:5px;">
+                <tr>
+                    <td><strong>Print Date / تاريخ الطباعة :</strong>
+                        <span t-esc="current_time.strftime('%d/%m/%Y %H:%M')"/>
+                    </td>
+                    <td><strong>Printed By / طبع بواسطة :</strong>
+                        <span t-esc="user_id"/>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%">
+                <tr><td style="border-top:2px solid #1a4f72;width:100%;"></td></tr>
+            </table>
+        </div>
+
+        <div class="article" style="font-size:12px;font-weight:bold;">
+            <t t-raw="0"/>
+            <div t-att-class="'footer o_standard_footer o_company_%s_layout' % res_company.id" style="background-color:#f1f5f8;border-top:3px solid #1a4f72;padding:8px 10px 4px;margin-top:8px;">
+                <div class="text-center">
+                    <table class="table table-borderless text-center" width="100%"
+                           style="border:none;font-family:Arial;background-color:#e5edf3;padding:5px;">
+                        <tr style="height:150px;">
+                            <td width="100%">
+                                <img t-if="footer_img_data"
+                                     t-att-src="'data:image/png;base64,%s' % footer_img_data.decode('utf-8')"
+                                     style="display:block;margin-top:3px;height:150px;width:100%;"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <span class="page"/> / <span class="topage"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <template id="report_vendor_partner_ledger">
+        <t t-call="web.html_container">
+            <t t-call="vendor_account_statement.custom_header_vendor">
+                <div class="page" style="font-family:Arial;margin:5px;">
+                    <style type="text/css">
+                        tr, td, th {
+                            padding: 4px 6px !important;
+                            margin: 0 !important;
+                            font-size: 11px;
+                            white-space: nowrap;
+                        }
+                        div { font-size: 11px; }
+
+                        .rpt-title {
+                            text-align: center;
+                            font-size: 16px;
+                            font-weight: bold;
+                            color: #1a4f72;
+                            margin: 6px 0 2px;
+                        }
+                        .rpt-period {
+                            text-align: center;
+                            font-size: 12px;
+                            color: #555;
+                            margin-bottom: 2px;
+                        }
+                        .rpt-partner {
+                            text-align: center;
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: #1a4f72;
+                            margin-bottom: 8px;
+                        }
+                        .rpt-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 4px;
+                        }
+                        .rpt-table th {
+                            background-color: #1a4f72 !important;
+                            color: #ffffff;
+                            text-align: center;
+                            font-size: 11px;
+                            font-weight: bold;
+                            border: 1px solid #0e3353;
+                            padding: 6px 4px !important;
+                        }
+                        .rpt-table td {
+                            border: 1px solid #ccd9e3;
+                            vertical-align: middle;
+                            text-align: center;
+                        }
+                        .rpt-table td.num {
+                            text-align: right;
+                            white-space: nowrap;
+                            min-width: 70px;
+                        }
+                        .rpt-table td.txt { text-align: right; }
+
+                        .row-opening  { background-color: #eaf4fb !important; font-weight: bold; }
+                        .row-bill     { background-color: #ffffff !important; }
+                        .row-payment  { background-color: #fffde7 !important; color:#4a3b00 !important; }
+                        .row-refund   { background-color: #fff1e6 !important; color:#6b3515 !important; }
+                        .row-summary-bills   { background-color: #c8dff2 !important; font-weight: bold; }
+                        .row-summary-refunds { background-color: #ffe0b2 !important; font-weight: bold; }
+                        .row-summary-net     { background-color: #1a4f72 !important; color:#fff !important; font-weight: bold; }
+                        .row-total           { background-color: #0e3353 !important; color:#fff !important; font-weight: bold; }
+                    </style>
+
+                    <div class="rpt-title">
+                        <t t-if="partner_language.startswith('ar')">كشف حساب مورد</t>
+                        <t t-else="">Vendor Account Statement</t>
+                    </div>
+                    <div class="rpt-period">
+                        <t t-if="partner_language.startswith('ar')">
+                            من: <t t-esc="date_start"/>
+                            &#160;&#160;|&#160;&#160;
+                            إلى: <t t-esc="date_end"/>
+                        </t>
+                        <t t-else="">
+                            From: <t t-esc="date_start"/>
+                            &#160;&#160;|&#160;&#160;
+                            To: <t t-esc="date_end"/>
+                        </t>
+                    </div>
+                    <div class="rpt-partner"><t t-esc="partner_name"/></div>
+
+                    <table class="rpt-table"
+                           t-att-dir="'rtl' if partner_language.startswith('ar') else 'ltr'">
+                        <thead>
+                            <t t-set="is_ar" t-value="partner_language.startswith('ar')"/>
+                            <tr>
+                                <th style="width:8%;">
+                                    <t t-if="is_ar">التاريخ</t>
+                                    <t t-else="">Date</t>
+                                </th>
+                                <th style="width:16%;">
+                                    <t t-if="is_ar">البيان</t>
+                                    <t t-else="">Note</t>
+                                </th>
+                                <th style="width:13%;">
+                                    <t t-if="is_ar">الصنف</t>
+                                    <t t-else="">Product</t>
+                                </th>
+                                <th style="width:6%;">
+                                    <t t-if="is_ar">الكمية</t>
+                                    <t t-else="">Qty</t>
+                                </th>
+                                <th style="width:4%;">
+                                    <t t-if="is_ar">الوحدة</t>
+                                    <t t-else="">UOM</t>
+                                </th>
+                                <th style="width:7%;">
+                                    <t t-if="is_ar">السعر</t>
+                                    <t t-else="">Price</t>
+                                </th>
+                                <th style="width:4%;">
+                                    <t t-if="is_ar">خصم</t>
+                                    <t t-else="">Disc.</t>
+                                </th>
+                                <th style="width:9%;">
+                                    <t t-if="is_ar">المبلغ</t>
+                                    <t t-else="">Amount</t>
+                                </th>
+                                <th style="width:9%;">
+                                    <t t-if="is_ar">مدين</t>
+                                    <t t-else="">Debit</t>
+                                </th>
+                                <th style="width:9%;">
+                                    <t t-if="is_ar">دائن</t>
+                                    <t t-else="">Credit</t>
+                                </th>
+                                <th style="width:9%;">
+                                    <t t-if="is_ar">الرصيد</t>
+                                    <t t-else="">Balance</t>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="total_debit_item_lines" t-value="0.0"/>
+                            <t t-set="total_credit_item_lines" t-value="0.0"/>
+
+                            <t t-foreach="item_lines" t-as="line">
+
+                                <!-- Opening Balance -->
+                                <tr t-if="line.get('opening_balance')" class="row-opening">
+                                    <td colspan="8" class="txt">
+                                        <strong t-esc="line.get('opening_balance')"/>
+                                    </td>
+                                    <td class="num">
+                                        <t t-if="line.get('opening_debit')">
+                                            <strong t-esc="line.get('opening_debit')"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <td class="num">
+                                        <t t-if="line.get('opening_credit')">
+                                            <strong t-esc="line.get('opening_credit')"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <td class="num">
+                                        <strong t-esc="line.get('balance')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Normal Lines -->
+                                <t t-if="not line.get('total_val') and not line.get('opening_balance')">
+                                    <t t-set="is_payment" t-value="bool(line.get('debit')) and not bool(line.get('credit'))"/>
+                                    <t t-set="is_refund"  t-value="'مرتجع' in (line.get('ref') or '')"/>
+                                    <t t-set="rclass"
+                                       t-value="'row-payment' if is_payment else ('row-refund' if is_refund else 'row-bill')"/>
+                                    <tr t-att-class="rclass">
+                                        <td class="txt"><t t-esc="line.get('date')"/></td>
+                                        <td class="txt"><t t-esc="line.get('ref')"/></td>
+                                        <td class="txt"><t t-esc="line.get('product')"/></td>
+                                        <td class="num">
+                                            <t t-if="line.get('qun')">
+                                                <t t-esc="line.get('qun')"/>
+                                            </t>
+                                        </td>
+                                        <td><t t-esc="line.get('uom')"/></td>
+                                        <td class="num">
+                                            <t t-if="line.get('price')">
+                                                <t t-esc="line.get('price')"
+                                                   t-options='{"widget":"float","precision":2}'/>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-if="line.get('discount') and line.get('discount') != '0%'">
+                                                <t t-esc="line.get('discount')"/>
+                                            </t>
+                                        </td>
+                                        <td class="num">
+                                            <t t-if="line.get('total_price')">
+                                                <t t-esc="line.get('total_price')"
+                                                   t-options='{"widget":"float","precision":2}'/>
+                                                &#160;<span t-esc="line.get('amount_currency') or ''"/>
+                                            </t>
+                                        </td>
+                                        <!-- Debit: only if > 0 -->
+                                        <td class="num">
+                                            <t t-if="line.get('debit')">
+                                                <strong t-esc="line.get('debit')"
+                                                        t-options='{"widget":"float","precision":2}'/>
+                                                &#160;<span t-esc="currency"/>
+                                            </t>
+                                        </td>
+                                        <!-- Credit: only if > 0 -->
+                                        <td class="num">
+                                            <t t-if="line.get('credit')">
+                                                <strong t-esc="line.get('credit')"
+                                                        t-options='{"widget":"float","precision":2}'/>
+                                                &#160;<span t-esc="currency"/>
+                                            </t>
+                                        </td>
+                                        <td class="num">
+                                            <strong t-esc="line.get('balance')"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </td>
+                                    </tr>
+                                </t>
+
+                                <!-- Totals Row -->
+                                <tr t-if="line.get('total_val')" class="row-total">
+                                    <t t-set="total_debit_item_lines" t-value="line.get('total_debit')"/>
+                                    <t t-set="total_credit_item_lines" t-value="line.get('total_credit')"/>
+                                    <td colspan="2"></td>
+                                    <td colspan="6"></td>
+                                    <td class="num">
+                                        <strong t-esc="line.get('total_debit')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                    <td class="num">
+                                        <strong t-esc="line.get('total_credit')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                    <td class="num">
+                                        <strong t-esc="line.get('total_balance')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Bills Summary -->
+                            <t t-set="total_credit_bills"
+                               t-value="round(total_credit_item_lines - total_credit_refund, 2)"/>
+                            <t t-set="index_bill" t-value="len(item_lines_bills)"/>
+                            <t t-set="line_index_bill" t-value="0"/>
+                            <t t-foreach="item_lines_bills" t-as="line">
+                                <t t-set="line_index_bill" t-value="line_index_bill + 1"/>
+                                <tr class="row-summary-bills">
+                                    <td t-if="line_index_bill == 1" t-att-rowspan="index_bill"
+                                        style="vertical-align:middle;border:1px solid #aac9e0;"></td>
+                                    <td t-if="line_index_bill == 1" t-att-rowspan="index_bill"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #aac9e0;">
+                                        <strong t-esc="line.get('ref')"/>
+                                    </td>
+                                    <td class="txt" style="border:1px solid #aac9e0;">
+                                        <strong t-esc="line.get('product')"/>
+                                    </td>
+                                    <td class="num" style="border:1px solid #aac9e0;">
+                                        <t t-esc="line.get('qun')"
+                                           t-options='{"widget":"float","precision":3}'/>
+                                    </td>
+                                    <td style="border:1px solid #aac9e0;"><t t-esc="line.get('uom')"/></td>
+                                    <td class="num" style="border:1px solid #aac9e0;">
+                                        <t t-if="line.get('qun') and line.get('qun') > 0">
+                                            <t t-esc="line.get('total_price') / line.get('qun')"
+                                               t-options='{"widget":"float","precision":2}'/>
+                                        </t>
+                                    </td>
+                                    <td style="border:1px solid #aac9e0;"></td>
+                                    <td class="num" style="border:1px solid #aac9e0;">
+                                        <strong t-esc="line.get('total_price')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="line.get('amount_currency') or ''"/>
+                                    </td>
+                                    <td t-if="line_index_bill == 1" t-att-rowspan="index_bill"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #aac9e0;">
+                                        <t t-if="total_debit_item_lines">
+                                            <strong t-esc="total_debit_item_lines"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <td t-if="line_index_bill == 1" t-att-rowspan="index_bill"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #aac9e0;">
+                                        <t t-if="total_credit_bills">
+                                            <strong t-esc="total_credit_bills"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <td t-if="line_index_bill == 1" t-att-rowspan="index_bill"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #aac9e0;">
+                                        <strong t-esc="round(total_debit_item_lines - total_credit_bills, 2)"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Refunds Summary -->
+                            <t t-set="index_refund" t-value="len(item_lines_refunds)"/>
+                            <t t-set="line_index_refund" t-value="0"/>
+                            <t t-foreach="item_lines_refunds" t-as="line">
+                                <t t-set="line_index_refund" t-value="line_index_refund + 1"/>
+                                <tr class="row-summary-refunds">
+                                    <td t-if="line_index_refund == 1" t-att-rowspan="index_refund"
+                                        style="vertical-align:middle;border:1px solid #ffcc80;"></td>
+                                    <td t-if="line_index_refund == 1" t-att-rowspan="index_refund"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #ffcc80;">
+                                        <strong t-esc="line.get('ref')"/>
+                                    </td>
+                                    <td class="txt" style="border:1px solid #ffcc80;">
+                                        <strong t-esc="line.get('product')"/>
+                                    </td>
+                                    <td class="num" style="border:1px solid #ffcc80;">
+                                        <t t-esc="line.get('qun')"
+                                           t-options='{"widget":"float","precision":3}'/>
+                                    </td>
+                                    <td style="border:1px solid #ffcc80;"><t t-esc="line.get('uom')"/></td>
+                                    <td class="num" style="border:1px solid #ffcc80;">
+                                        <t t-if="line.get('qun') and line.get('qun') > 0">
+                                            <t t-esc="line.get('total_price') / line.get('qun')"
+                                               t-options='{"widget":"float","precision":2}'/>
+                                        </t>
+                                    </td>
+                                    <td style="border:1px solid #ffcc80;"></td>
+                                    <td class="num" style="border:1px solid #ffcc80;">
+                                        <strong t-esc="line.get('total_price')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="line.get('amount_currency') or ''"/>
+                                    </td>
+                                    <td t-if="line_index_refund == 1" t-att-rowspan="index_refund"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #ffcc80;">
+                                        <t t-if="total_credit_refund">
+                                            <strong t-esc="total_credit_refund"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <td t-if="line_index_refund == 1" t-att-rowspan="index_refund"
+                                        style="vertical-align:middle;border:1px solid #ffcc80;"></td>
+                                    <td t-if="line_index_refund == 1" t-att-rowspan="index_refund"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #ffcc80;">
+                                        <strong t-esc="total_credit_refund"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Net Purchases Summary -->
+                            <t t-set="index_net" t-value="len(item_lines_net)"/>
+                            <t t-set="line_index_net" t-value="0"/>
+                            <t t-foreach="item_lines_net" t-as="line">
+                                <t t-set="line_index_net" t-value="line_index_net + 1"/>
+                                <tr class="row-summary-net">
+                                    <td t-if="line_index_net == 1" t-att-rowspan="index_net"
+                                        style="vertical-align:middle;border:1px solid #0e3353;"></td>
+                                    <td t-if="line_index_net == 1" t-att-rowspan="index_net"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #0e3353;">
+                                        <strong t-esc="line.get('ref')"/>
+                                    </td>
+                                    <td class="txt" style="border:1px solid #0e3353;">
+                                        <strong t-esc="line.get('product')"/>
+                                    </td>
+                                    <td class="num" style="border:1px solid #0e3353;">
+                                        <t t-esc="line.get('qun')"
+                                           t-options='{"widget":"float","precision":3}'/>
+                                    </td>
+                                    <td style="border:1px solid #0e3353;"><t t-esc="line.get('uom')"/></td>
+                                    <td class="num" style="border:1px solid #0e3353;">
+                                        <t t-if="line.get('qun') and line.get('qun') > 0">
+                                            <t t-esc="line.get('total_price') / line.get('qun')"
+                                               t-options='{"widget":"float","precision":2}'/>
+                                        </t>
+                                    </td>
+                                    <td style="border:1px solid #0e3353;"></td>
+                                    <td class="num" style="border:1px solid #0e3353;">
+                                        <strong t-esc="line.get('total_price')"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="line.get('amount_currency') or ''"/>
+                                    </td>
+                                    <!-- Debit: only if > 0 -->
+                                    <td t-if="line_index_net == 1" t-att-rowspan="index_net"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #0e3353;">
+                                        <t t-if="line.get('debit')">
+                                            <strong t-esc="line.get('debit')"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <!-- Credit: صافي ما يستحقه المورد -->
+                                    <td t-if="line_index_net == 1" t-att-rowspan="index_net"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #0e3353;">
+                                        <t t-if="line.get('credit')">
+                                            <strong t-esc="line.get('credit')"
+                                                    t-options='{"widget":"float","precision":2}'/>
+                                            &#160;<span t-esc="currency"/>
+                                        </t>
+                                    </td>
+                                    <!-- Balance = Credit - Debit -->
+                                    <td t-if="line_index_net == 1" t-att-rowspan="index_net"
+                                        class="num"
+                                        style="vertical-align:middle;text-align:center;border:1px solid #0e3353;">
+                                        <strong t-esc="round(line.get('credit', 0) - line.get('debit', 0), 2)"
+                                                t-options='{"widget":"float","precision":2}'/>
+                                        &#160;<span t-esc="currency"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <record id="action_report_vendor_partner_ledger" model="ir.actions.report">
+        <field name="name">Vendor Statement - كشف حساب مورد</field>
+        <field name="model">vendor.statement.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">vendor_account_statement.report_vendor_partner_ledger</field>
+        <field name="report_file">vendor_account_statement.report_vendor_partner_ledger</field>
+        <field name="print_report_name">('Vendor Statement - %s' % (object.partner_id.name))</field>
+        <field name="binding_model_id" ref="vendor_account_statement.model_vendor_statement_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="paperformat_vendor_ledger_pdf" model="report.paperformat">
+        <field name="name">Vendor Ledger PDF</field>
+        <field name="default" eval="True"/>
+        <field name="format">custom</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">50</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_spacing">50</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="vendor_account_statement.action_report_vendor_partner_ledger" model="ir.actions.report">
+        <field name="paperformat_id" ref="vendor_account_statement.paperformat_vendor_ledger_pdf"/>
+    </record>
+
+</odoo>

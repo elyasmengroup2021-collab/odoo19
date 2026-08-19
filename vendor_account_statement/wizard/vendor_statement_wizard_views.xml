@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="vendor_account_statement_view_form" model="ir.ui.view">
+        <field name="name">vendor.statement.wizard.form</field>
+        <field name="model">vendor.statement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Vendor Account Statement - كشف حساب مورد">
+                <group>
+                    <group string="Period / الفترة">
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                    </group>
+                    <group string="Vendor / المورد">
+                        <field name="partner_id"
+                               domain="[('supplier_rank','&gt;', 0)]"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="product_ids"
+                               widget="many2many_tags"
+                               options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                </group>
+
+                <group string="Output Type / نوع المخرج">
+                    <field name="type" widget="radio"/>
+                </group>
+
+                <footer>
+                    <!-- View in Browser -->
+                    <button name="action_download"
+                            string="View / عرض"
+                            type="object"
+                            class="btn-primary"
+                            invisible="type != 'view'"
+                            data-hotkey="v"/>
+
+                    <!-- Download PDF -->
+                    <button name="action_download"
+                            string="Download PDF / تنزيل PDF"
+                            type="object"
+                            class="btn-primary"
+                            invisible="type != 'pdf'"
+                            data-hotkey="p"/>
+
+                    <!-- Download Excel -->
+                    <button name="action_download"
+                            string="Download Excel / تنزيل Excel"
+                            type="object"
+                            class="btn-primary"
+                            invisible="type != 'xlsx'"
+                            data-hotkey="x"/>
+
+                    <button string="Cancel / إلغاء"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="vendor_account_statement_action" model="ir.actions.act_window">
+        <field name="name">Vendor Account Statement - كشف حساب مورد</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">vendor.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="vendor_account_statement_view_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        parent="account.menu_finance_payables"
+        id="menu_vendor_account_statement"
+        name="Vendor Account Statement - كشف حساب مورد"
+        action="vendor_account_statement_action"
+        sequence="220"
+        groups="account.group_account_invoice"
+    />
+
+</odoo>
