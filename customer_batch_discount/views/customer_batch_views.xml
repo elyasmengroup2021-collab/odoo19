@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_customer_batch_list" model="ir.ui.view">
+        <field name="name">customer.batch.list</field>
+        <field name="model">customer.batch</field>
+        <field name="arch" type="xml">
+            <list string="Customer Batches">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge"/>
+                <field name="total_quantity"/>
+                <field name="total_discount"/>
+                <field name="discount_move_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_customer_batch_search" model="ir.ui.view">
+        <field name="name">customer.batch.search</field>
+        <field name="model">customer.batch</field>
+        <field name="arch" type="xml">
+            <search string="Customer Batches">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="state"/>
+                <field name="company_id"/>
+                <filter name="open" string="Open Batches" domain="[('state', '=', 'open')]"/>
+                <filter name="closed" string="Closed Batches" domain="[('state', '=', 'closed')]"/>
+                <filter name="pending_discount" string="Pending Discount" domain="[('state', '=', 'closed')]"/>
+                <filter name="discount_applied" string="Discount Applied" domain="[('state', '=', 'discount_applied')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                <filter name="group_month" string="Month" context="{'group_by': 'start_date:month'}"/>
+                <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_customer_batch_form" model="ir.ui.view">
+        <field name="name">customer.batch.form</field>
+        <field name="model">customer.batch</field>
+        <field name="arch" type="xml">
+            <form string="Customer Batch">
+                <header>
+                    <button name="action_open" type="object" string="Open" class="btn-primary" invisible="state != 'draft'" groups="customer_batch_discount.group_customer_batch_user"/>
+                    <button name="action_close" type="object" string="Close" class="btn-primary" invisible="state != 'open'" groups="customer_batch_discount.group_customer_batch_user"/>
+                    <button name="action_calculate_consumption" type="object" string="Calculate Consumption" invisible="state != 'closed'" groups="customer_batch_discount.group_customer_batch_user"/>
+                    <button name="action_apply_discount_from_lines" type="object" string="Apply Discount" class="btn-primary" invisible="state != 'closed'" groups="customer_batch_discount.group_customer_batch_manager" confirm="Apply the discount using the rates entered in the Consumption lines?"/>
+                    <button name="action_view_discount_move" type="object" string="View Journal Entry" invisible="not discount_move_id" groups="customer_batch_discount.group_customer_batch_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state not in ('draft', 'open', 'closed')" groups="customer_batch_discount.group_customer_batch_manager" confirm="Cancel this batch?"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" class="btn-secondary" invisible="state != 'cancelled'" groups="customer_batch_discount.group_customer_batch_reset" confirm="Reset this cancelled batch to Draft?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,closed,discount_applied,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="General Information">
+                            <field name="partner_id" readonly="state in ('closed', 'discount_applied', 'cancelled')"/>
+                            <field name="start_date" readonly="state in ('closed', 'discount_applied', 'cancelled')"/>
+                            <field name="duration_days" readonly="state in ('closed', 'discount_applied', 'cancelled')"/>
+                            <field name="end_date"/>
+                        </group>
+                        <group>
+                            <field name="company_id" readonly="state != 'draft'" groups="base.group_multi_company"/>
+                            <field name="currency_id"/>
+                            <field name="total_quantity"/>
+                            <field name="discount_per_unit" readonly="state in ('discount_applied', 'cancelled')" groups="customer_batch_discount.group_customer_batch_manager"/>
+                            <field name="total_discount"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="consumption" string="Consumption">
+                            <field name="consumption_line_ids" readonly="state != 'closed'">
+                                <list create="0" delete="0">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="invoice_count"/>
+                                    <field name="total_sales_amount"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="invoices" string="Invoices">
+                            <field name="invoice_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="invoice_date"/>
+                                    <field name="partner_id"/>
+                                    <field name="state"/>
+                                    <field name="amount_total"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="accounting" string="Accounting">
+                            <group string="Configured Settings">
+                                <field name="configured_discount_account_id"/>
+                                <field name="configured_discount_journal_id"/>
+                                <field name="discount_label" readonly="state in ('discount_applied', 'cancelled')"/>
+                            </group>
+                            <group string="Applied Discount Entry">
+                                <field name="discount_account_id"/>
+                                <field name="discount_journal_id"/>
+                                <field name="discount_date"/>
+                                <field name="discount_move_ref"/>
+                                <field name="discount_move_id"/>
+                            </group>
+                        </page>
+                        <page name="notes" string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_customer_batch" model="ir.actions.act_window">
+        <field name="name">Customer Batches</field>
+        <field name="res_model">customer.batch</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_customer_batch_search"/>
+        <field name="context">{'search_default_group_customer': 0}</field>
+    </record>
+</odoo>
