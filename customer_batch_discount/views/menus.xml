@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <menuitem id="menu_customer_batch_root" name="Customer Batches" parent="account.menu_finance" sequence="45" groups="customer_batch_discount.group_customer_batch_user"/>
-    <menuitem id="menu_customer_batch" name="Batches" parent="menu_customer_batch_root" action="action_customer_batch" sequence="10" groups="customer_batch_discount.group_customer_batch_user"/>
-</odoo>
