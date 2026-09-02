@@ -1,0 +1,43 @@
+<odoo>
+    <template id="report_movement_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page" style="font-family: Arial;">
+                    <h2 style="text-align:center;">Employee Movement Report</h2>
+                    <p>From: <t t-esc="doc.date_from"/> To: <t t-esc="doc.date_to"/></p>
+                    <t t-set="data" t-value="doc.get_movement_data()"/>
+                    <t t-foreach="data" t-as="rec">
+                        <h4><t t-esc="rec['employee'].name"/></h4>
+                        <table class="table table-bordered" border="1" style="width:100%; border-collapse:collapse;">
+                            <tr style="background:#eee;"><th>Date</th><th>Day</th><th>Status</th><th>In</th><th>Out</th><th>Hours</th></tr>
+                            <t t-foreach="rec['days']" t-as="d"><tr><td><t t-esc="d['date']"/></td><td><t t-esc="d['day_name']"/></td><td><t t-esc="d['status']"/></td><td><t t-esc="d['check_in']"/></td><td><t t-esc="d['check_out']"/></td><td><t t-esc="d['hours']"/></td></tr></t>
+                        </table><br/>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+    <template id="report_delay_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Delay Report</h2><t t-set="lines" t-value="doc.get_delay_data()"/><table border="1" style="width:100%;"><tr><th>Date</th><th>Code</th><th>Name</th><th>Delay</th></tr><t t-foreach="lines" t-as="l"><tr><td><t t-esc="l['date']"/></td><td><t t-esc="l['code']"/></td><td><t t-esc="l['name']"/></td><td><t t-esc="l['delay']"/></td></tr></t></table></div></t></t>
+    </template>
+    <template id="report_absence_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Absence Report</h2><t t-set="lines" t-value="doc.get_absence_data()"/><table border="1" style="width:100%;"><tr><th>Date</th><th>Code</th><th>Name</th></tr><t t-foreach="lines" t-as="l"><tr><td><t t-esc="l['date']"/></td><td><t t-esc="l['code']"/></td><td><t t-esc="l['name']"/></td></tr></t></table></div></t></t>
+    </template>
+    <template id="report_fingerprint_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Fingerprint List</h2><t t-set="lines" t-value="doc.get_fingerprint_list_data()"/><table border="1" style="width:100%;"><tr><th>Date</th><th>Time</th><th>Type</th><th>Name</th></tr><t t-foreach="lines" t-as="l"><tr><td><t t-esc="l['date']"/></td><td><t t-esc="l['time']"/></td><td><t t-esc="l['type']"/></td><td><t t-esc="l['name']"/></td></tr></t></table></div></t></t>
+    </template>
+    <template id="report_single_punch_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Single Punch</h2><t t-set="lines" t-value="doc.get_single_punch_data()"/><table border="1" style="width:100%;"><tr><th>Date</th><th>Name</th><th>Time</th></tr><t t-foreach="lines" t-as="l"><tr><td><t t-esc="l['date']"/></td><td><t t-esc="l['name']"/></td><td><t t-esc="l['time']"/></td></tr></t></table></div></t></t>
+    </template>
+    <template id="report_attendance_sheet_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Attendance Sheet</h2><t t-set="data" t-value="doc.get_attendance_sheet_data()"/><t t-foreach="data" t-as="rec"><h4><t t-esc="rec['employee'].name"/></h4><table border="1" style="width:100%;"><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th></tr><t t-foreach="rec['days']" t-as="d"><tr><td><t t-esc="d['date']"/></td><td><t t-esc="d['status']"/></td><td><t t-esc="d['check_in']"/></td><td><t t-esc="d['check_out']"/></td></tr></t></table></t></div></t></t>
+    </template>
+    <template id="report_yearly_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page"><h2>Yearly Report</h2><t t-set="data" t-value="doc.get_yearly_data()"/><t t-foreach="data" t-as="rec"><h4><t t-esc="rec['employee'].name"/></h4><table border="1" style="width:100%;"><tr><th>Date</th><th>Status</th><th>Hours</th></tr><t t-foreach="rec['days']" t-as="d"><tr><td><t t-esc="d['date']"/></td><td><t t-esc="d['status']"/></td><td><t t-esc="d['hours']"/></td></tr></t></table></t></div></t></t>
+    </template>
+
+    <template id="report_leave_balance_template">
+        <t t-call="web.html_container"><t t-foreach="docs" t-as="doc"><div class="page" style="background:white; color:black;"><h2 style="text-align:center;">Leave Balance Report</h2><t t-set="lines" t-value="doc.get_leave_balance_data()"/><table class="table table-bordered" border="1" style="width:100%;"><tr style="background:#2c3e50; color:white;"><th>Code</th><th>Name</th><th>Leave Type</th><th>Allocated</th><th>Taken</th><th>Remaining</th></tr><t t-foreach="lines" t-as="l"><tr><td><t t-esc="l['code']"/></td><td><t t-esc="l['name']"/></td><td><t t-esc="l['leave_type']"/></td><td><t t-esc="l['allocated']"/></td><td><t t-esc="l['taken']"/></td><td><t t-esc="l['remaining']"/></td></tr></t></table></div></t></t>
+    </template>
+
+</odoo>

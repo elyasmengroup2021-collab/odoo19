@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_shift,hr.shift,model_hr_shift,hr.group_hr_user,1,1,1,1
+access_shift_schedule,schedule,model_hr_shift_schedule,hr.group_hr_user,1,1,1,1
+access_shift_line,line,model_hr_shift_schedule_line,hr.group_hr_user,1,1,1,1
+access_shift_change,change,model_hr_shift_change_request,hr.group_hr_user,1,1,1,1
+access_attendance_wizard,wizard,model_hr_attendance_report_wizard,hr.group_hr_user,1,1,1,1
+access_planner_wizard,planner,model_hr_shift_planner_wizard,hr.group_hr_user,1,1,1,1

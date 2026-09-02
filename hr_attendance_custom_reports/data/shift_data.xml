@@ -1,0 +1,8 @@
+
+<odoo>
+    <record id="shift_morning" model="hr.shift"><field name="name">شفت صباحي - 08:00 إلى 16:00</field><field name="code">MOR</field><field name="shift_type">morning</field><field name="time_from">8.0</field><field name="time_to">16.0</field><field name="grace_in">15</field><field name="sequence">1</field></record>
+    <record id="shift_afternoon" model="hr.shift"><field name="name">شفت مسائي - 16:00 إلى 00:00</field><field name="code">AFT</field><field name="shift_type">afternoon</field><field name="time_from">16.0</field><field name="time_to">0.0</field><field name="sequence">2</field></record>
+    <record id="shift_night" model="hr.shift"><field name="name">شفت ليلي - 00:00 إلى 08:00</field><field name="code">NIG</field><field name="shift_type">night</field><field name="time_from">0.0</field><field name="time_to">8.0</field><field name="sequence">3</field></record>
+    <record id="shift_flexible" model="hr.shift"><field name="name">وردية مرنة</field><field name="code">FLEX</field><field name="shift_type">flexible</field><field name="time_from">8.0</field><field name="time_to">18.0</field><field name="required_hours">8.0</field><field name="sequence">4</field></record>
+    <record id="shift_day_off" model="hr.shift"><field name="name">راحة</field><field name="code">OFF</field><field name="shift_type">day_off</field><field name="time_from">0.0</field><field name="time_to">0.0</field><field name="sequence">99</field></record>
+</odoo>
