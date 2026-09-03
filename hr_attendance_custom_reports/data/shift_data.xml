@@ -23,7 +23,6 @@
         <field name="shift_type">night</field>
         <field name="time_from">0.0166667</field>
         <field name="time_to">8.0</field>
-        <field name="operational_day_offset">-1</field>
         <field name="sequence">3</field>
     </record>
 
