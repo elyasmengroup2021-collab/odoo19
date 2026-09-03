@@ -1,0 +1,72 @@
+<odoo>
+    <record id="view_attendance_report_wizard_form" model="ir.ui.view">
+        <field name="name">hr.attendance.report.wizard.form</field>
+        <field name="model">hr.attendance.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="HR Reports">
+                <sheet>
+                    <group>
+                        <group string="Report Settings">
+                            <field name="report_type"/>
+                            <field name="year" invisible="report_type != 'yearly'"/>
+                            <field name="leave_type_id" invisible="report_type != 'leave_balance'" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Filters">
+                            <field name="date_from" invisible="report_type in ('yearly','leave_balance')"/>
+                            <field name="date_to" invisible="report_type in ('yearly','leave_balance')"/>
+                            <field name="department_id" options="{'no_create': True}"/>
+                            <field name="shift_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Employees (Filtered by Department)" invisible="report_type == 'leave_balance'">
+                        <field name="employee_ids" widget="many2many_tags" domain="[('department_id','=',department_id)]" nolabel="1" placeholder="Leave empty for all employees in department"/>
+                    </group>
+                    <group string="Employees" invisible="report_type != 'leave_balance'">
+                        <field name="employee_ids" widget="many2many_tags" nolabel="1" placeholder="Leave empty for all employees"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_view_report" string="View Report in Odoo" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button name="action_print_pdf" string="Export PDF" type="object" class="btn-info"/>
+                    <button special="cancel" string="Close" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_attendance_report_viewer_form" model="ir.ui.view">
+        <field name="name">hr.attendance.report.wizard.viewer.form</field>
+        <field name="model">hr.attendance.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Report Viewer">
+                <header>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button name="action_print_pdf" string="Export PDF" type="object" class="btn-info"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Report: <field name="report_type" readonly="1"/> | From: <field name="date_from" readonly="1"/> To: <field name="date_to" readonly="1"/> | Department: <field name="department_id" readonly="1"/>
+                    </div>
+                    <field name="html_preview" nolabel="1" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_attendance_report_wizard" model="ir.actions.act_window">
+        <field name="name">HR Reports</field>
+        <field name="res_model">hr.attendance.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_hr_attendance_reports_root" name="Shift System" parent="hr.menu_hr_root" sequence="90"/>
+    <menuitem id="menu_hr_shift_config" name="Shift Configuration" parent="menu_hr_attendance_reports_root" action="action_hr_shift_adv" sequence="1"/>
+    <menuitem id="menu_hr_shift_schedule" name="Shift Schedule" parent="menu_hr_attendance_reports_root" action="action_shift_schedule" sequence="2"/>
+    <menuitem id="menu_hr_shift_planner" name="Generate Schedule" parent="menu_hr_attendance_reports_root" action="action_shift_planner_wizard" sequence="3"/>
+    <menuitem id="menu_hr_shift_daily_log" name="Daily Log" parent="menu_hr_attendance_reports_root" action="action_shift_line" sequence="4"/>
+    <menuitem id="menu_hr_shift_change" name="Shift Change Requests" parent="menu_hr_attendance_reports_root" action="action_shift_change" sequence="5"/>
+    <menuitem id="menu_attendance_reports_wizard_pro" name="HR Reports" parent="menu_hr_attendance_reports_root" action="action_attendance_report_wizard" sequence="10"/>
+</odoo>
+
