@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="account_reports_community_v2.AccountReportAction">
+        <div class="o_action o_account_reports_community_v2">
+            <Layout display="display">
+                <div t-if="state.loadError" class="alert alert-danger m-3 d-flex align-items-center justify-content-between" role="alert">
+                    <span><i class="fa fa-exclamation-triangle me-2"/><t t-esc="state.loadError"/></span>
+                    <button type="button" class="btn btn-sm btn-outline-danger" t-on-click="loadReport">Retry</button>
+                </div>
+                <div class="o_account_reports_community_v2_page" t-if="state.report">
+                    <div class="o_account_reports_community_v2_toolbar d-flex align-items-center gap-3 flex-wrap px-3 py-2 border-bottom">
+                        <input t-if="!isPartnerBasedReport"
+                               type="text" class="o_account_reports_community_v2_search" t-att-placeholder="searchPlaceholder"
+                               t-on-input="onSearchInput"/>
+
+                        <span t-if="isPartnerBasedReport" class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="togglePartnerMenu">
+                                <i class="fa fa-users me-1"/><t t-esc="partnerFilterLabel"/>
+                            </button>
+                            <div t-if="state.partnerMenuOpen"
+                                 class="o_account_reports_community_v2_menu o_account_reports_community_v2_menu_scrollable dropdown-menu show position-absolute p-2">
+                                <input type="text" class="o_account_reports_community_v2_search mb-2" placeholder="Filter partners..."
+                                       t-on-input="onPartnerFilterQueryInput"/>
+                                <div t-foreach="filteredAvailablePartners" t-as="partner" t-key="partner.id"
+                                     class="form-check">
+                                    <input type="checkbox" class="form-check-input"
+                                           t-att-checked="state.partnerIds.includes(partner.id)"
+                                           t-on-change="() => this.togglePartnerFilter(partner.id)"/>
+                                    <label class="form-check-label" t-esc="partner.name"/>
+                                </div>
+                            </div>
+                        </span>
+
+                        <span class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="togglePresetMenu"><i class="fa fa-calendar me-1"/><t t-esc="periodFilterLabel"/></button>
+                            <div t-if="state.presetMenuOpen" class="o_account_reports_community_v2_menu dropdown-menu show position-absolute o_period_picker_menu">
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('today')">Today</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('this_month')">This Month</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('last_month')">Last Month</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('this_quarter')">This Quarter</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('last_quarter')">Last Quarter</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('this_year')">This Financial Year</a>
+                                <a href="#" class="dropdown-item" t-on-click.prevent="() => this.applyDatePreset('last_year')">Last Financial Year</a>
+                                <div class="dropdown-divider"/>
+                                <div class="o_period_custom_range"><label>From</label><input type="date" t-att-value="state.dateFrom" t-on-change="onDateFromChange"/><label>To</label><input type="date" t-att-value="state.dateTo" t-on-change="onDateToChange"/><button class="btn btn-primary btn-sm" t-on-click="applyCustomDateRange">Apply</button></div>
+                            </div>
+                        </span>
+                        <span class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="toggleJournalMenu">
+                                <i class="fa fa-book me-1"/><t t-esc="journalFilterLabel"/>
+                            </button>
+                            <div t-if="state.journalMenuOpen"
+                                 class="o_account_reports_community_v2_menu dropdown-menu show position-absolute p-2">
+                                <div t-foreach="state.availableJournals" t-as="journal" t-key="journal.id"
+                                     class="form-check">
+                                    <input type="checkbox" class="form-check-input"
+                                           t-att-checked="state.journalIds.includes(journal.id)"
+                                           t-on-change="() => this.toggleJournal(journal.id)"/>
+                                    <label class="form-check-label" t-esc="journal.name"/>
+                                </div>
+                            </div>
+                        </span>
+
+                        <span t-if="state.availableCurrencies.length > 1" class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="toggleCurrencyMenu">
+                                <i class="fa fa-money me-1"/><t t-esc="currencyFilterLabel"/>
+                            </button>
+                            <div t-if="state.currencyMenuOpen"
+                                 class="o_account_reports_community_v2_menu dropdown-menu show position-absolute">
+                                <a t-foreach="state.availableCurrencies" t-as="currency" t-key="currency.id"
+                                   href="#" class="dropdown-item"
+                                   t-att-class="{ active: state.currencyId === currency.id }"
+                                   t-on-click.prevent="() => this.selectCurrency(currency.id)"
+                                   t-esc="currency.name"/>
+                            </div>
+                        </span>
+
+                        <span class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="toggleAnalyticGroupMenu">
+                                <i class="fa fa-folder-open-o me-1"/><t t-esc="analyticGroupLabel"/>
+                            </button>
+                            <div t-if="state.analyticGroupMenuOpen" class="o_account_reports_community_v2_menu dropdown-menu show position-absolute p-0 o_analytic_picker_menu">
+                                <div class="o_analytic_picker_layout">
+                                    <div class="o_analytic_picker_types">
+                                        <a href="#" class="o_analytic_picker_type" t-att-class="{ active: state.analyticPickerType === 'analytic_account' }" t-on-click.prevent="() => this.selectAnalyticGroupType('analytic_account')">Accounts <i class="fa fa-chevron-right float-end mt-1"/></a>
+                                        <a href="#" class="o_analytic_picker_type" t-att-class="{ active: state.analyticPickerType === 'analytic_plan' }" t-on-click.prevent="() => this.selectAnalyticGroupType('analytic_plan')">Plans <i class="fa fa-chevron-right float-end mt-1"/></a>
+                                    </div>
+                                    <div class="o_analytic_picker_results">
+                                        <div t-if="state.analyticPickerType === 'analytic_account' and selectedAnalyticAccounts.length" class="o_analytic_selected_tags">
+                                            <span t-foreach="selectedAnalyticAccounts" t-as="selected" t-key="selected.id" class="o_analytic_tag"><t t-esc="selected.name"/><button type="button" t-on-click.stop="() => this.removeAnalyticValue('analytic_account', selected.id)">×</button></span><a href="#" class="o_analytic_clear" t-on-click.prevent="clearAnalyticValues">Clear</a>
+                                        </div>
+                                        <div t-if="state.analyticPickerType === 'analytic_plan' and selectedAnalyticPlans.length" class="o_analytic_selected_tags">
+                                            <span t-foreach="selectedAnalyticPlans" t-as="selected" t-key="selected.id" class="o_analytic_tag"><t t-esc="selected.name"/><button type="button" t-on-click.stop="() => this.removeAnalyticValue('analytic_plan', selected.id)">×</button></span><a href="#" class="o_analytic_clear" t-on-click.prevent="clearAnalyticValues">Clear</a>
+                                        </div>
+                                        <div class="o_analytic_picker_search">
+                                            <input t-if="state.analyticPickerType" type="search" class="form-control form-control-sm" placeholder="Search analytic account or plan..." t-att-value="state.analyticGroupQuery" t-on-input="onAnalyticGroupQueryInput"/>
+                                        </div>
+                                        <div t-if="state.analyticPickerType === 'analytic_account'" class="o_analytic_picker_values">
+                                            <a t-foreach="filteredAnalyticAccounts" t-as="analytic" t-key="analytic.id" href="#" class="dropdown-item" t-att-class="{ active: state.analyticAccountIds.includes(analytic.id) }" t-on-click.prevent="() => this.selectAnalyticGroupValue(analytic.id)">
+                                                <t t-esc="analytic.name"/>
+                                            </a>
+                                            <div t-if="!filteredAnalyticAccounts.length" class="o_analytic_picker_empty">No accounts found</div>
+                                        </div>
+                                        <div t-if="state.analyticPickerType === 'analytic_plan'" class="o_analytic_picker_values">
+                                            <a t-foreach="filteredAnalyticPlans" t-as="plan" t-key="plan.id" href="#" class="dropdown-item" t-att-class="{ active: state.analyticPlanIds.includes(plan.id) }" t-on-click.prevent="() => this.selectAnalyticGroupValue(plan.id)">
+                                                <t t-esc="plan.name"/>
+                                            </a>
+                                            <div t-if="!filteredAnalyticPlans.length" class="o_analytic_picker_empty">No plans found</div>
+                                        </div>
+                                        <a href="#" class="o_analytic_picker_search_more" t-on-click.prevent="openAnalyticSearchMore">Search More...</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <span class="position-relative">
+                            <button class="btn btn-secondary btn-sm" t-on-click="toggleOptionsMenu">
+                                <i class="fa fa-filter me-1"/><t t-esc="optionsLabel"/>
+                            </button>
+                            <div t-if="state.optionsMenuOpen"
+                                 class="o_account_reports_community_v2_menu dropdown-menu show position-absolute p-2">
+                                <label class="dropdown-item form-check">
+                                    <input type="checkbox" class="form-check-input me-2"
+                                           t-att-checked="state.allEntries"
+                                           t-on-change="toggleDraftEntries"/>
+                                    Include Draft Entries
+                                </label>
+                                <label class="dropdown-item form-check">
+                                    <input type="checkbox" class="form-check-input me-2"
+                                           t-att-checked="state.includeAnalyticSimulations"
+                                           t-on-change="toggleAnalyticSimulations"/>
+                                    Include Analytic Simulations
+                                </label>
+                                <label class="dropdown-item form-check">
+                                    <input type="checkbox" class="form-check-input me-2"
+                                           t-att-checked="state.hierarchyAndSubtotals"
+                                           t-on-change="toggleHierarchyAndSubtotals"/>
+                                    Hierarchy and Subtotals
+                                </label>
+                                <label class="dropdown-item form-check">
+                                    <input type="checkbox" class="form-check-input me-2"
+                                           t-att-checked="state.unfoldAll"
+                                           t-on-change="toggleUnfoldAll"/>
+                                    Unfold All
+                                </label>
+                            </div>
+                        </span>
+
+                        <span t-if="state.report.report_handler === 'generic'" class="position-relative">
+                            <button class="btn btn-sm" t-att-class="state.comparisonEnabled ? 'btn-primary' : 'btn-secondary'" t-on-click="toggleComparisonMenu">
+                                <i class="fa fa-percent me-1"/><t t-esc="comparisonLabel"/>
+                            </button>
+                            <div t-if="state.comparisonMenuOpen" class="o_account_reports_community_v2_menu dropdown-menu show position-absolute p-2 o_comparison_menu">
+                                <a href="#" class="dropdown-item" t-on-click.prevent="this.clearComparison">No Comparison</a>
+                                <div class="dropdown-divider"/>
+                                <label class="dropdown-item form-check">
+                                    <input type="radio" name="comparison_type" class="form-check-input me-2" t-att-checked="state.comparisonType === 'previous_period'" t-on-change="() => this.selectComparisonType('previous_period')"/>
+                                    Previous Period
+                                    <input type="number" min="1" max="12" class="form-control form-control-sm d-inline-block ms-2 o_comparison_count" t-att-value="state.comparisonType === 'previous_period' ? state.comparisonDraftCount : 1" t-on-input="onComparisonCountInput"/>
+                                    <button class="btn btn-sm btn-primary ms-2" t-on-click.stop="() => this.applyComparison('previous_period')">Apply</button>
+                                </label>
+                                <label class="dropdown-item form-check">
+                                    <input type="radio" name="comparison_type" class="form-check-input me-2" t-att-checked="state.comparisonType === 'same_period_last_year'" t-on-change="() => this.selectComparisonType('same_period_last_year')"/>
+                                    Same Period Last Year
+                                    <input type="number" min="1" max="12" class="form-control form-control-sm d-inline-block ms-2 o_comparison_count" t-att-value="state.comparisonType === 'same_period_last_year' ? state.comparisonDraftCount : 1" t-on-input="onComparisonCountInput"/>
+                                    <button class="btn btn-sm btn-primary ms-2" t-on-click.stop="() => this.applyComparison('same_period_last_year')">Apply</button>
+                                </label>
+                            </div>
+                        </span>
+
+                        <i t-if="state.isLoading" class="fa fa-circle-o-notch fa-spin ms-2 text-muted" title="Loading..."/>
+
+                        <span class="ms-auto d-flex gap-2">
+                            <button class="btn btn-secondary btn-sm" t-on-click="exportPdf">
+                                <i class="fa fa-file-pdf-o me-1"/>PDF
+                            </button>
+                            <button class="btn btn-secondary btn-sm" t-on-click="exportXlsx">
+                                <i class="fa fa-file-excel-o me-1"/>Excel
+                            </button>
+                        </span>
+                    </div>
+
+                    <div t-if="state.report.has_unposted_entries" class="alert alert-info mb-0 rounded-0 py-2 text-center">
+                        There are unposted Journal Entries prior or included in this period.
+                    </div>
+
+                    <div class="container-fluid o_account_reports_community_v2_report_container">
+                        <h4 class="mt-3 mb-3" t-esc="state.report.report_name"/>
+
+                        <table t-if="state.report.report_handler === 'generic'"
+                               t-att-class="'table table-sm table-hover o_account_reports_community_v2_table' + ((state.report.report_name === 'Trial Balance' &amp;&amp; !state.report.options.analytic_dynamic_columns) ? ' o_account_reports_community_v2_trial_balance' + (state.report.periods.length > 1 ? ' o_trial_balance_comparison' : '') : (state.report.report_name === 'Balance Sheet' ? ' o_account_reports_community_v2_balance_sheet' + (state.report.periods.length > 1 ? ' o_balance_sheet_comparison' : '') : ''))">
+                            <thead>
+                                <tr t-if="state.report.periods.length > 1 and state.report.report_name !== 'Trial Balance'">
+                                    <th/>
+                                    <t t-foreach="state.report.periods" t-as="period" t-key="period_index">
+                                        <th class="text-center" t-att-colspan="state.report.columns.length" t-esc="period.label"/>
+                                    </t>
+                                </tr>
+                                <t t-if="state.report.report_name === 'Trial Balance' &amp;&amp; !state.report.options.analytic_dynamic_columns">
+                                    <tr>
+                                        <th rowspan="2">Name</th>
+                                        <th class="text-center o_trial_group_initial" colspan="2">Initial Balance</th>
+                                        <t t-foreach="state.report.periods" t-as="period" t-key="period_index">
+                                            <th class="text-center o_trial_group_period" colspan="2" t-esc="period.label or 'Period'"/>
+                                        </t>
+                                        <th class="text-center o_trial_group_end" colspan="2">End Balance</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-end o_trial_initial_debit">Debit</th><th class="text-end o_trial_initial_credit">Credit</th>
+                                        <t t-foreach="state.report.periods" t-as="period" t-key="period_index">
+                                            <th class="text-end o_trial_period_debit">Debit</th><th class="text-end o_trial_period_credit">Credit</th>
+                                        </t>
+                                        <th class="text-end o_trial_end_debit">Debit</th><th class="text-end o_trial_end_credit">Credit</th>
+                                    </tr>
+                                </t>
+                                <tr t-else="">
+                                    <th>Name</th>
+                                    <t t-foreach="state.report.periods" t-as="period" t-key="period_index">
+                                        <t t-foreach="state.report.columns" t-as="column" t-key="column.expression_label">
+                                            <th class="text-end" t-esc="column.name"/>
+                                        </t>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="state.report.report_name === 'Trial Balance' &amp;&amp; !state.report.options.analytic_dynamic_columns" t-call="account_reports_community_v2.TrialBalanceLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                                <t t-else="" t-call="account_reports_community_v2.ReportLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <table t-elif="state.report.report_handler === 'general_ledger'"
+                               class="table table-sm table-hover o_account_reports_community_v2_table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Journal Entry</th>
+                                    <th>Partner</th>
+                                    <th>Label</th>
+                                    <th class="text-end">Debit</th>
+                                    <th class="text-end">Credit</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-call="account_reports_community_v2.GeneralLedgerLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <table t-elif="state.report.report_handler === 'partner_ledger'"
+                               class="table table-sm table-hover o_account_reports_community_v2_table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Journal Entry</th>
+                                    <th>Account</th>
+                                    <th>Label</th>
+                                    <th class="text-end">Debit</th>
+                                    <th class="text-end">Credit</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-call="account_reports_community_v2.PartnerLedgerLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <table t-elif="state.report.report_handler === 'aged_partner_balance'"
+                               class="table table-sm table-hover o_account_reports_community_v2_table">
+                            <thead>
+                                <tr>
+                                    <th>Partner</th>
+                                    <t t-foreach="state.report.bucket_columns" t-as="bucket" t-key="bucket.key">
+                                        <th class="text-end" t-esc="bucket.label"/>
+                                    </t>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-call="account_reports_community_v2.AgedPartnerBalanceLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <table t-elif="state.report.report_handler === 'tax_report'"
+                               class="table table-sm table-hover o_account_reports_community_v2_table">
+                            <thead>
+                                <tr>
+                                    <th>Tax</th>
+                                    <th class="text-end">Base Amount</th>
+                                    <th class="text-end">Tax Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-call="account_reports_community_v2.TaxReportLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <table t-else="" class="table table-sm table-hover o_account_reports_community_v2_table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Journal Entry</th>
+                                    <th>Account</th>
+                                    <th>Label</th>
+                                    <th class="text-end">Debit</th>
+                                    <th class="text-end">Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-call="account_reports_community_v2.JournalReportLines">
+                                    <t t-set="lines" t-value="state.report.lines"/>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </Layout>
+<div t-if="state.analyticSearchMoreOpen" class="o_analytic_search_more_backdrop"><div class="o_analytic_search_more_dialog"><div class="o_analytic_search_more_header"><span>Search: <t t-esc="state.analyticPickerType === 'analytic_plan' ? 'Plans' : 'Accounts'"/></span><button type="button" class="btn-close" t-on-click="closeAnalyticSearchMore"/></div><div class="o_analytic_search_more_toolbar"><i class="fa fa-cog"/><input type="search" placeholder="Search..." t-att-value="state.analyticGroupQuery" t-on-input="onAnalyticGroupQueryInput"/><span class="text-muted"><t t-esc="state.analyticPickerType === 'analytic_plan' ? filteredAnalyticPlans.length : filteredAnalyticAccounts.length"/> results</span></div><div class="o_analytic_search_more_table"><table><thead><tr><th class="o_analytic_select_col"/><th>Name</th><th t-if="state.analyticPickerType === 'analytic_account'">Plan</th></tr></thead><tbody><t t-if="state.analyticPickerType === 'analytic_account'" t-foreach="filteredAnalyticAccounts" t-as="analytic" t-key="analytic.id"><tr t-att-class="{ selected: state.analyticSearchMoreSelectedValues.includes(analytic.id) }" t-on-click="() => this.selectAnalyticSearchMoreValue(analytic.id)"><td><input type="checkbox" name="analytic_more" t-att-checked="state.analyticSearchMoreSelectedValues.includes(analytic.id)"/></td><td t-esc="analytic.name"/><td t-esc="analytic.plan_name || ''"/></tr></t><t t-if="state.analyticPickerType === 'analytic_plan'" t-foreach="filteredAnalyticPlans" t-as="plan" t-key="plan.id"><tr t-att-class="{ selected: state.analyticSearchMoreSelectedValues.includes(plan.id) }" t-on-click="() => this.selectAnalyticSearchMoreValue(plan.id)"><td><input type="checkbox" name="analytic_more" t-att-checked="state.analyticSearchMoreSelectedValues.includes(plan.id)"/></td><td t-esc="plan.name"/></tr></t></tbody></table></div><div class="o_analytic_search_more_footer"><button class="btn btn-primary btn-sm" t-on-click="applyAnalyticSearchMore">Select</button><button class="btn btn-secondary btn-sm" t-on-click="closeAnalyticSearchMore">Close</button></div></div></div>
+        </div>
+    </t>
+
+
+    <t t-name="account_reports_community_v2.ReportLines">
+        <t t-foreach="lines" t-as="line" t-key="line.id">
+            <t t-if="line.summary_at_bottom and line.unfolded and line.children.length" t-call="account_reports_community_v2.ReportLines">
+                <t t-set="lines" t-value="line.children"/>
+            </t>
+            <tr t-att-class="(line.code === 'BS_ASSETS_TOTAL' || line.code === 'BS_LIAB_TOTAL' || line.code === 'BS_EQUITY_TOTAL' || line.code === 'BS_LIAB_EQUITY_TOTAL' ? 'o_balance_sheet_total ' : (line.code === 'TBALL' ? 'o_account_reports_community_v2_trial_total' : '')) + (line.group_id ? 'o_account_reports_community_v2_group_row' : '')">
+                <td t-attf-style="padding-left: {{line.level * 16}}px">
+                    <span t-if="line.foldable"
+                          class="o_account_reports_community_v2_caret"
+                          t-on-click="() => this.toggleLine(line)">
+                        <i class="fa fa-fw" t-att-class="line.unfolded ? 'fa-caret-down' : 'fa-caret-right'"/>
+                    </span>
+                    <strong t-if="line.group_id" t-esc="line.name"/>
+                    <t t-else="" t-esc="line.name"/>
+                    <span t-if="line.account_id" class="o_account_reports_community_v2_kebab_wrapper position-relative ms-1">
+                        <span class="o_account_reports_community_v2_kebab" t-on-click.stop="() => this.toggleMenu(line)">
+                            <i class="fa fa-ellipsis-v"/>
+                        </span>
+                        <div t-if="state.openMenuLineId === line.id"
+                             class="o_account_reports_community_v2_menu dropdown-menu show position-absolute">
+                            <a href="#" class="dropdown-item" t-on-click.prevent="() => this.onOpenGeneralLedger(line)">
+                                General Ledger
+                            </a>
+                            <a href="#" class="dropdown-item" t-on-click.prevent="() => this.onOpenJournalItems(line)">
+                                Journal Items
+                            </a>
+                        </div>
+                    </span>
+                </td>
+                <t t-foreach="line.periods" t-as="period" t-key="period_index">
+                    <t t-foreach="period.columns" t-as="column" t-key="column.expression_label">
+                        <td class="text-end o_account_reports_community_v2_cell"
+                            t-on-click="() => this.onCellClick(line, column, period)"
+                            t-esc="column.value != null ? this.formatAmount(column.value) : ''"/>
+                    </t>
+                </t>
+            </tr>
+            <t t-if="line.unfolded and line.children.length and !line.summary_at_bottom" t-call="account_reports_community_v2.ReportLines">
+                <t t-set="lines" t-value="line.children"/>
+            </t>
+        </t>
+    </t>
+
+    <t t-name="account_reports_community_v2.TrialBalanceLines">
+        <t t-foreach="lines" t-as="line" t-key="line.id">
+            <t t-if="line.summary_at_bottom and line.children.length" t-call="account_reports_community_v2.TrialBalanceLines">
+                <t t-set="lines" t-value="line.children"/>
+            </t>
+            <tr t-att-class="line.code === 'TBALL' ? 'o_account_reports_community_v2_trial_total' : (line.group_id ? 'o_account_reports_community_v2_group_row' : '')">
+                <td t-attf-style="padding-left: {{line.level * 16}}px">
+                    <span t-if="line.foldable" class="o_account_reports_community_v2_caret" t-on-click="() => this.toggleLine(line)">
+                        <i class="fa fa-fw" t-att-class="line.unfolded ? 'fa-caret-down' : 'fa-caret-right'"/>
+                    </span>
+                    <strong t-if="line.group_id" t-esc="line.name"/><t t-else="" t-esc="line.name"/>
+                </td>
+                <t t-set="initial" t-value="line.periods[0].columns"/>
+                <td class="text-end" t-esc="initial[0].value != null ? this.formatAmount(initial[0].value) : ''"/>
+                <td class="text-end" t-esc="initial[1].value != null ? this.formatAmount(initial[1].value) : ''"/>
+                <t t-foreach="line.periods" t-as="period" t-key="period_index">
+                    <td class="text-end" t-esc="period.columns[2].value != null ? this.formatAmount(period.columns[2].value) : ''"/>
+                    <td class="text-end" t-esc="period.columns[3].value != null ? this.formatAmount(period.columns[3].value) : ''"/>
+                </t>
+                <td class="text-end" t-esc="initial[4].value != null ? this.formatAmount(initial[4].value) : ''"/>
+                <td class="text-end" t-esc="initial[5].value != null ? this.formatAmount(initial[5].value) : ''"/>
+            </tr>
+            <t t-if="line.unfolded and line.children.length and !line.summary_at_bottom" t-call="account_reports_community_v2.TrialBalanceLines">
+                <t t-set="lines" t-value="line.children"/>
+            </t>
+        </t>
+    </t>
+
+    <!--
+        General Ledger's, Partner Ledger's, and Aged Receivable/Payable's
+        row templates (account_reports_community_v2.GeneralLedgerLines,
+        .PartnerLedgerLines, .AgedPartnerBalanceLines) live in
+        general_ledger_table.xml, partner_ledger_table.xml, and
+        aged_balance_table.xml respectively - split out purely for file
+        size/readability. t-call resolves templates by name across the
+        whole bundle regardless of which file registers them, so this is a
+        no-op for runtime behavior; it just keeps this file down to the
+        shell + the generic (Trial Balance/Balance Sheet/P&L) case.
+    -->
+
+</templates>

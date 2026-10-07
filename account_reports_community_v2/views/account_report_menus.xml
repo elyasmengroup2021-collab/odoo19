@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--
+            Not hung off account.account_reports_legal_statements_menu ("Statement
+            Reports") on purpose: that placeholder itself carries
+            groups="account.group_account_readonly,account.group_account_basic" in
+            Community's own account_menuitem.xml, which stays invisible to
+            Invoicing-only users (including the "Administrator" accounting level);
+            see the comment block in account/security/account_security.xml. Attaching
+            directly under "Reporting" instead, with no groups restriction, matches
+            how Community's own always-visible "Management" submenu is defined.
+        -->
+        <menuitem id="menu_trial_balance"
+                  name="Trial Balance"
+                  parent="account.menu_finance_reports"
+                  action="action_trial_balance"
+                  sequence="2"/>
+
+        <menuitem id="menu_general_ledger"
+                  name="General Ledger"
+                  parent="account.menu_finance_reports"
+                  action="action_general_ledger"
+                  sequence="3"/>
+
+        <menuitem id="menu_balance_sheet"
+                  name="Balance Sheet"
+                  parent="account.menu_finance_reports"
+                  action="action_balance_sheet"
+                  sequence="0"/>
+
+        <menuitem id="menu_profit_and_loss"
+                  name="Profit and Loss"
+                  parent="account.menu_finance_reports"
+                  action="action_profit_and_loss"
+                  sequence="1"/>
+
+        <!--
+            account.account_reports_partners_reports_menu ("Partner Reports")
+            carries no groups restriction in Community's own
+            account_menuitem.xml (unlike "Statement Reports" above), so it's
+            safe to use as the parent here.
+        -->
+        <menuitem id="menu_partner_ledger"
+                  name="Partner Ledger"
+                  parent="account.account_reports_partners_reports_menu"
+                  action="action_partner_ledger"
+                  sequence="1"/>
+
+        <menuitem id="menu_aged_receivable"
+                  name="Aged Receivable"
+                  parent="account.account_reports_partners_reports_menu"
+                  action="action_aged_receivable"
+                  sequence="2"/>
+
+        <menuitem id="menu_aged_payable"
+                  name="Aged Payable"
+                  parent="account.account_reports_partners_reports_menu"
+                  action="action_aged_payable"
+                  sequence="3"/>
+
+        <menuitem id="menu_cash_flow_statement"
+                  name="Cash Flow Statement"
+                  parent="account.menu_finance_reports"
+                  action="action_cash_flow_statement"
+                  sequence="4"/>
+
+        <menuitem id="menu_journal_report"
+                  name="Journal Report"
+                  parent="account.menu_finance_reports"
+                  action="action_journal_report"
+                  sequence="5"/>
+
+        <!--
+            account.account_reports_taxes_and_fiscal_menu ("Taxes &amp; Fiscal")
+            also carries no groups restriction, same as Partner Reports above.
+        -->
+        <menuitem id="menu_tax_report"
+                  name="Tax Report"
+                  parent="account.account_reports_taxes_and_fiscal_menu"
+                  action="action_tax_report"
+                  sequence="1"/>
+
+    </data>
+</odoo>
