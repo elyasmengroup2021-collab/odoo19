@@ -5,7 +5,7 @@
  <record id="action_cutoff_invoices_to_issue" model="ir.actions.client"><field name="name">Invoices To Be Issued</field><field name="tag">audit_cutoff_reports</field><field name="context">{'report_type':'invoices_to_issue','last365':True}</field></record>
  <record id="action_cutoff_invoiced_not_delivered" model="ir.actions.client"><field name="name">Invoiced Not Delivered</field><field name="tag">audit_cutoff_reports</field><field name="context">{'report_type':'invoiced_not_delivered','last365':True}</field></record>
 
- <menuitem id="menu_cutoff_category" name="Audit Cut-off" parent="account.account_audit_menu" sequence="15" groups="account.group_account_user"/>
+ <menuitem id="menu_cutoff_category" name="Audit Cut-off" parent="account.menu_finance_entries" sequence="15" groups="account.group_account_user"/>
  <menuitem id="menu_cutoff_bills_to_receive" name="Bills To Receive" parent="menu_cutoff_category" action="action_cutoff_bills_to_receive" sequence="10" groups="account.group_account_user"/>
  <menuitem id="menu_cutoff_billed_not_received" name="Billed Not Received" parent="menu_cutoff_category" action="action_cutoff_billed_not_received" sequence="20" groups="account.group_account_user"/>
  <menuitem id="menu_cutoff_invoices_to_issue" name="Invoices To Be Issued" parent="menu_cutoff_category" action="action_cutoff_invoices_to_issue" sequence="30" groups="account.group_account_user"/>
