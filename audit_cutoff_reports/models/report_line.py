@@ -60,13 +60,13 @@ class AccountCutoffReportLine(models.Model):
     )
 
     @api.model
-    def _check_access(self):
+    def _check_report_access(self):
         if not self.env.user.has_group("account.group_account_user"):
             raise AccessError(_("You do not have access to accounting cut-off reports."))
 
     @api.model
     def create_snapshot(self, session_key, report_type, as_of_date, company_id, rows):
-        self._check_access()
+        self._check_report_access()
         self.sudo().search([("user_id", "=", self.env.user.id), ("session_key", "=", session_key)]).unlink()
         as_of_date = fields.Date.to_date(as_of_date)
         cutoff = as_of_date - relativedelta(days=365)
@@ -118,7 +118,7 @@ class AccountCutoffReportLine(models.Model):
         return len(vals_list)
 
     def action_create_accrual_entries(self):
-        self._check_access()
+        self._check_report_access()
         self = self.sudo()
         if not self:
             self = self.browse(self.env.context.get("active_ids", []))
