@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+ <record id="view_cutoff_report_line_search" model="ir.ui.view">
+   <field name="name">account.cutoff.report.line.search</field>
+   <field name="model">account.cutoff.report.line</field>
+   <field name="arch" type="xml">
+     <search string="Search">
+       <field name="order_ref" string="Order Reference"/>
+       <field name="partner_id" string="Partner"/>
+       <field name="product_id" string="Product"/>
+       <field name="description" string="Description"/>
+       <field name="salesperson_id" string="Salesperson"/>
+       <field name="product_categ_id" string="Product Category"/>
+       <field name="company_id" string="Company"/>
+       <field name="uom_id" string="Unit"/>
+       <separator/>
+       <filter name="last_365" string="For the Last 365 Days" domain="[('within_last_365', '=', True)]"/>
+       <filter name="service" string="Service" domain="[('product_type', '=', 'service')]"/>
+       <filter name="goods" string="Goods" domain="[('product_type', '=', 'goods')]"/>
+       <separator/>
+       <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
+       <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+       <filter name="group_order" string="Order Reference" context="{'group_by': 'order_ref'}"/>
+       <filter name="group_product_category" string="Product Category" context="{'group_by': 'product_categ_id'}"/>
+       <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+       <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'salesperson_id'}"/>
+       <filter name="group_uom" string="Unit" context="{'group_by': 'uom_id'}"/>
+     </search>
+   </field>
+ </record>
+
+ <record id="view_cutoff_report_line_list" model="ir.ui.view">
+   <field name="name">account.cutoff.report.line.list</field>
+   <field name="model">account.cutoff.report.line</field>
+   <field name="arch" type="xml">
+     <list string="Audit Cut-off" create="0" edit="0" delete="0" import="0" js_class="audit_cutoff_list" default_group_by="partner_id" default_order="partner_id,order_date,order_ref" export_xlsx="1">
+       <header>
+         <button name="action_create_accrual_entries" type="object" string="Create Accrual Entries" icon="fa-plus"/>
+       </header>
+       <field name="order_ref" string="Order Reference"/>
+       <field name="partner_id" string="Partner"/>
+       <field name="product_id" string="Product" column_invisible="context.get('cutoff_is_sale')"/>
+       <field name="description" string="Description" column_invisible="not context.get('cutoff_is_sale')"/>
+       <field name="salesperson_id" string="Salesperson" column_invisible="not context.get('cutoff_is_sale')"/>
+       <field name="quantity" string="Quantity" sum="Quantity"/>
+       <field name="received" string="Received" sum="Received" column_invisible="context.get('cutoff_is_sale')"/>
+       <field name="billed" string="Billed" sum="Billed" column_invisible="context.get('cutoff_is_sale')"/>
+       <field name="delivered" string="Delivered" sum="Delivered" column_invisible="not context.get('cutoff_is_sale')"/>
+       <field name="invoiced" string="Invoiced" sum="Invoiced" column_invisible="not context.get('cutoff_is_sale')"/>
+       <field name="uom_id" string="Unit"/>
+       <field name="unit_price" string="Unit Price" avg="Unit Price" widget="float"/>
+       <field name="amount" string="Amount" sum="Amount" widget="monetary"/>
+       <field name="currency_id" column_invisible="1"/>
+       <field name="company_id" column_invisible="1"/>
+       <field name="within_last_365" column_invisible="1"/>
+       <field name="report_type" column_invisible="1"/>
+       <field name="session_key" column_invisible="1"/>
+       <field name="user_id" column_invisible="1"/>
+       <field name="source_model" column_invisible="1"/>
+       <field name="source_line_id" column_invisible="1"/>
+     </list>
+   </field>
+ </record>
+
+
+</odoo>
